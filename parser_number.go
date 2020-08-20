@@ -98,7 +98,7 @@ func (p *parser) numberComesAfterPrefix(cat elementCategory, tkn *token) (bool, 
 	}
 	prefix := tkn.Content[:numberBegin]
 
-	_, found := p.tokenizer.keywordManager.find(p.tokenizer.keywordManager.Normalize(prefix), cat)
+	_, found := p.tokenizer.keywordManager.find(p.tokenizer.keywordManager.normalize(prefix), cat)
 	if found {
 		number := tkn.Content[numberBegin:]
 		if cat == elementCategoryEpisodePrefix {
@@ -483,7 +483,7 @@ func (p *parser) matchTypeAndEpisodePattern(w string, tkn *token) (bool, error) 
 	}
 	prefix := w[:numberBegin]
 
-	kd, found := p.tokenizer.keywordManager.find(p.tokenizer.keywordManager.Normalize(prefix), elementCategoryAnimeType)
+	kd, found := p.tokenizer.keywordManager.find(p.tokenizer.keywordManager.normalize(prefix), elementCategoryAnimeType)
 	if found {
 		p.tokenizer.elements.insert(elementCategoryAnimeType, prefix)
 		number := w[numberBegin:]
