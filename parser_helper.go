@@ -9,56 +9,6 @@ import (
 
 const dashes = "-\u2010\u2011\u2012\u2013\u2014\u2015"
 
-func stringToInt(str string) int {
-	i, err := strconv.Atoi(str)
-	if err != nil {
-		return 0
-	}
-	return i
-}
-
-func isCRC32(str string) bool {
-	return len(str) == 8 && isHexadecimalString(str)
-}
-
-func isHexadecimalString(str string) bool {
-	_, err := strconv.ParseInt(str, 16, 64)
-	return err == nil
-}
-
-func isResolution(str string) bool {
-	pattern := "\\d{3,4}([pP]|([xX\u00D7]\\d{3,4}))$"
-	found, _ := regexp.Match(pattern, []byte(str))
-	return found
-}
-
-func getNumberFromOrdinal(str string) int {
-	ordinals := map[string]int{
-		"1st": 1, "first": 1,
-		"2nd": 2, "second": 2,
-		"3rd": 3, "third": 3,
-		"4th": 4, "fourth": 4,
-		"5th": 5, "fifth": 5,
-		"6th": 6, "sixth": 6,
-		"7th": 7, "seventh": 7,
-		"8th": 8, "eigth": 8,
-		"9th": 9, "ninth": 9,
-	}
-
-	lowerStr := strings.ToLower(str)
-	num := ordinals[lowerStr]
-	return num
-}
-
-func findNumberInString(str string) int {
-	for _, c := range str {
-		if unicode.IsDigit(c) {
-			return strings.IndexRune(str, c)
-		}
-	}
-	return -1
-}
-
 func (p *parser) checkAnimeSeasonKeyword(tkn *token) (bool, error) {
 	prevToken, found, err := p.tokenizer.tokens.findPrevious(*tkn, tokenFlagsNotDelimiter)
 	if err != nil {
@@ -174,4 +124,54 @@ func isMostlyLatinString(str string) bool {
 		}
 	}
 	return (float32(latinLength) / float32(len(str))) >= 0.5
+}
+
+func stringToInt(str string) int {
+	i, err := strconv.Atoi(str)
+	if err != nil {
+		return 0
+	}
+	return i
+}
+
+func isCRC32(str string) bool {
+	return len(str) == 8 && isHexadecimalString(str)
+}
+
+func isHexadecimalString(str string) bool {
+	_, err := strconv.ParseInt(str, 16, 64)
+	return err == nil
+}
+
+func isResolution(str string) bool {
+	pattern := "\\d{3,4}([pP]|([xX\u00D7]\\d{3,4}))$"
+	found, _ := regexp.Match(pattern, []byte(str))
+	return found
+}
+
+func getNumberFromOrdinal(str string) int {
+	ordinals := map[string]int{
+		"1st": 1, "first": 1,
+		"2nd": 2, "second": 2,
+		"3rd": 3, "third": 3,
+		"4th": 4, "fourth": 4,
+		"5th": 5, "fifth": 5,
+		"6th": 6, "sixth": 6,
+		"7th": 7, "seventh": 7,
+		"8th": 8, "eigth": 8,
+		"9th": 9, "ninth": 9,
+	}
+
+	lowerStr := strings.ToLower(str)
+	num := ordinals[lowerStr]
+	return num
+}
+
+func findNumberInString(str string) int {
+	for _, c := range str {
+		if unicode.IsDigit(c) {
+			return strings.IndexRune(str, c)
+		}
+	}
+	return -1
 }
