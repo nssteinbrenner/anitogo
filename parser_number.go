@@ -158,6 +158,7 @@ func (p *parser) searchForEquivalentNumbers(tkns tokens) (bool, error) {
 			return false, err
 		}
 		if iso || !isValidEpisodeNumber(tkn.Content) {
+			return false, err
 		}
 
 		nextToken, found, err := p.tokenizer.tokens.findNext(*tkn, tokenFlagsNotDelimiter)
@@ -297,11 +298,7 @@ func (p *parser) setSeasonNumber(number string, tkn *token) bool {
 }
 
 func isValidEpisodeNumber(number string) bool {
-	i := stringToInt(number)
-	if i <= episodeNumberMax {
-		return true
-	}
-	return false
+	return stringToInt(number) <= episodeNumberMax
 }
 
 func (p *parser) setEpisodeNumber(number string, tkn *token, validate bool) bool {

@@ -68,17 +68,19 @@ func newKeywordManager() *keywordManager {
 	kwm.Add(elementCategoryAnimeSeasonPrefix, keywordOptionsUnidentifiable, []string{"S", "SAISON", "SEASON"})
 	kwm.Add(elementCategoryAnimeType, keywordOptionsUnidentifiable, []string{
 		"GEKIJOUBAN", "MOVIE", "OAD", "OAV", "ONA", "OVA", "SPECIAL", "SPECIALS", "TV"})
-	kwm.Add(elementCategoryAnimeType, keywordOptionsUnidentifiableUnsearchable, []string{"SP"})
+	kwm.Add(elementCategoryAnimeType, keywordOptionsUnidentifiableUnsearchable, []string{
+		"SP"})
 	kwm.Add(elementCategoryAnimeType, keywordOptionsUnidentifiableInvalid, []string{
 		"ED", "ENDING", "NCED", "NCOP", "OP", "OPENING", "PREVIEW", "PV"})
 	kwm.Add(elementCategoryAudioTerm, keywordOptionsDefault, []string{
 		"2.0CH", "2CH", "5.1", "5.1CH", "DTS", "DTS-ES", "DTS5.1", "TRUEHD5.1",
 		"AAC", "AACX2", "AACX3", "AACX4", "AC3", "EAC3", "E-AC-3", "FLAC",
 		"FLACX2", "FLACX3", "FLACX4", "LOSSLESS", "MP3", "OGG", "VORBIS",
-		"DD2", "DD2.0"})
+		"DD2", "DD2.0", "DUALAUDIO", "DUAL AUDIO"})
 	kwm.Add(elementCategoryDeviceCompatibility, keywordOptionsDefault, []string{
 		"IPAD3", "IPHONE5", "IPOD", "PS3", "XBOX", "XBOX360"})
-	kwm.Add(elementCategoryDeviceCompatibility, keywordOptionsUnidentifiable, []string{"ANDROID"})
+	kwm.Add(elementCategoryDeviceCompatibility, keywordOptionsUnidentifiable, []string{
+		"ANDROID"})
 	kwm.Add(elementCategoryEpisodePrefix, keywordOptionsDefault, []string{
 		"EP", "EP.", "EPS", "EPS.", "EPISODE", "EPISODE.", "EPISODES",
 		"CAPITULO", "EPISODIO", "FOLGE"})
@@ -112,7 +114,7 @@ func newKeywordManager() *keywordManager {
 		"WEBCAST", "WEBRIP"})
 	kwm.Add(elementCategorySubtitles, keywordOptionsDefault, []string{
 		"ASS", "BIG5", "DUB", "DUBBED", "HARDSUB", "HARDSUBS", "RAW",
-		"SOFTSUB", "SOFTSUBS", "SUB", "SUBBED", "SUBTITLES"})
+		"SOFTSUB", "SOFTSUBS", "SUB", "SUBBED", "SUBTITLED"})
 	kwm.Add(elementCategoryVideoTerm, keywordOptionsDefault, []string{
 		"23.976FPS", "24FPS", "29.97FPS", "30FPS", "60FPS", "120FPS",
 		"8BIT", "8-BIT", "10BIT", "10BITS", "10-BIT", "10-BITS",
@@ -172,9 +174,8 @@ func (kwm *keywordManager) find(word string, cat elementCategory) (keyword, bool
 			kw = v
 			if kw.Category != elementCategoryUnknown && kw.Category != cat {
 				return kw, false
-			} else {
-				return kw, true
 			}
+			return kw, true
 		}
 	} else {
 		v := kwm.fileExtensions[word]
@@ -182,9 +183,8 @@ func (kwm *keywordManager) find(word string, cat elementCategory) (keyword, bool
 			kw = v
 			if kw.Category != elementCategoryUnknown && kw.Category != cat {
 				return kw, false
-			} else {
-				return kw, true
 			}
+			return kw, true
 		}
 	}
 	return kw, false
@@ -209,7 +209,7 @@ func (kwm *keywordManager) FindWithoutCategory(word string) (keyword, bool) {
 	return kw, false
 }
 
-func (kwm *keywordManager) Peek(word string, e *elements) (indexSets, error) {
+func (kwm *keywordManager) Peek(word string, e *Elements) (indexSets, error) {
 	entries := map[elementCategory][]string{
 		elementCategoryAudioTerm:       []string{"Dual Audio", "DualAudio"},
 		elementCategoryVideoTerm:       []string{"H264", "H.264", "h264", "h.264"},

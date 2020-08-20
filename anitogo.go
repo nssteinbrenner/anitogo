@@ -7,6 +7,11 @@ import (
 
 const maxExtensionLength = 4
 
+// DefaultOptions to be passed to the Parse function.
+//
+// Custom options can be specified by creating a new Options struct.
+//
+// All testing was done with the default options, and they are recommended for most use cases.
 var DefaultOptions = Options{
 	AllowedDelimiters:  " _.&+,|",
 	IgnoredStrings:     []string{},
@@ -16,13 +21,18 @@ var DefaultOptions = Options{
 	ParseReleaseGroup:  true,
 }
 
-func Parse(filename string, options Options) (*elements, error) {
+// Parse builds and returns an Elements struct and an error by parsing a filename with the specified options.
+//
+// If an error is encountered during the process, Parse will return an empty Elements struct.
+//
+// Parsing behavior can be changed in the passed Options struct, which will change the returned Elements struct.
+func Parse(filename string, options Options) (*Elements, error) {
 	tkns := tokens{}
 	elems := newElements()
 	km := newKeywordManager()
 
 	if len(filename) == 0 {
-		return &elements{}, nil
+		return &Elements{}, nil
 	}
 
 	elems.insert(elementCategoryFileName, filename)
@@ -34,6 +44,10 @@ func Parse(filename string, options Options) (*elements, error) {
 		elems.insert(elementCategoryFileExtension, extension)
 	}
 
+	if options.IgnoredStrings != nil {
+		filename = removeIgnoredStrings(filename, options.IgnoredStrings)
+	}
+
 	tkz := tokenizer{
 		filename:       filename,
 		options:        options,
@@ -43,13 +57,13 @@ func Parse(filename string, options Options) (*elements, error) {
 	}
 	err := tkz.tokenize()
 	if err != nil {
-		return &elements{}, err
+		return &Elements{}, err
 	}
 
 	psr := newParser(&tkz)
 	err = psr.parse()
 	if err != nil {
-		return &elements{}, err
+		return &Elements{}, err
 	}
 
 	return psr.tokenizer.elements, nil
@@ -81,6 +95,13 @@ func removeExtensionFromFilename(km *keywordManager, filename string) (string, s
 	filename = filename[:extStart]
 
 	return filename, extension
+}
+
+func removeIgnoredStrings(filename string, ignoredStrings []string) string {
+	for _, s := range ignoredStrings {
+		filename = strings.ReplaceAll(filename, s, "")
+	}
+	return filename
 }
 
 func isAlphaNumeric(s string) bool {

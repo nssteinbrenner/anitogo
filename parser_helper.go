@@ -46,7 +46,7 @@ func getNumberFromOrdinal(str string) int {
 	}
 
 	lowerStr := strings.ToLower(str)
-	num, _ := ordinals[lowerStr]
+	num := ordinals[lowerStr]
 	return num
 }
 
