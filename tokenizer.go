@@ -105,13 +105,7 @@ func (t *tokenizer) tokenizeByBrackets() error {
 		}
 
 		if bracketIndex != -1 {
-			retBracket := ""
-			for i, v := range text {
-				if i == bracketIndex {
-					retBracket = string(v)
-				}
-			}
-			t.addToken(tokenCategoryBracket, retBracket, true)
+			t.addToken(tokenCategoryBracket, string(text[bracketIndex]), true)
 			isBracketOpen = !isBracketOpen
 			text = text[bracketIndex+1:]
 		} else {

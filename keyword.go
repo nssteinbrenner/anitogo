@@ -167,13 +167,13 @@ func (kwm *keywordManager) find(word string, cat elementCategory) (keyword, bool
 	}
 
 	if cat != elementCategoryFileExtension {
-		v := kwm.keywords[word]
-		if !v.empty() && (v.Category == elementCategoryUnknown || v.Category == cat) {
+		v, ok := kwm.keywords[word]
+		if ok && (v.Category == elementCategoryUnknown || v.Category == cat) {
 			return v, true
 		}
 	} else {
-		v := kwm.fileExtensions[word]
-		if !v.empty() {
+		v, ok := kwm.fileExtensions[word]
+		if ok {
 			return v, true
 		}
 	}
@@ -184,12 +184,12 @@ func (kwm *keywordManager) findWithoutCategory(word string) (keyword, bool) {
 	if word == "" {
 		return keyword{}, false
 	}
-	v := kwm.keywords[word]
-	if !v.empty() {
+	v, ok := kwm.keywords[word]
+	if ok {
 		return v, true
 	}
-	v = kwm.fileExtensions[word]
-	if !v.empty() {
+	v, ok = kwm.fileExtensions[word]
+	if ok {
 		return v, true
 	}
 	return keyword{}, false

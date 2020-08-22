@@ -10,8 +10,8 @@ const (
 	tokenCategoryInvalid
 )
 
-const tokenFlagsNone = 0
 const (
+	tokenFlagsNone    = 0
 	tokenFlagsBracket = 1 << iota
 	tokenFlagsNotBracket
 	tokenFlagsDelimiter
