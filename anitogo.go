@@ -7,11 +7,9 @@ import (
 
 const maxExtensionLength = 4
 
-// DefaultOptions to be passed to the Parse function.
+// DefaultOptions are sane defaults for the Options struct to be passed to the Parse function.
 //
-// Custom options can be specified by creating a new Options struct.
-//
-// All testing was done with the default options, and they are recommended for most use cases.
+// Custom options can be specified by creating a new Options struct and passing it to the Parse function.
 var DefaultOptions = Options{
 	AllowedDelimiters:  " _.&+,|",
 	IgnoredStrings:     []string{},
@@ -21,19 +19,19 @@ var DefaultOptions = Options{
 	ParseReleaseGroup:  true,
 }
 
-// Parse builds and returns an Elements struct and an error by parsing a filename with the specified options.
+// Parse builds and returns a pointer to an Elements struct and an error by parsing a filename with the specified options.
 //
-// If an error is encountered during the process, Parse will return an empty Elements struct.
+// If an error is encountered during the process, Parse will return an empty pointer to an Elements struct.
 //
-// Parsing behavior can be changed in the passed Options struct, which will change the returned Elements struct.
+// Parsing behavior can be customized in the passed Options struct.
 func Parse(filename string, options Options) (*Elements, error) {
-	tkns := tokens{}
-	elems := newElements()
-	km := newKeywordManager()
-
 	if len(filename) == 0 {
 		return &Elements{}, nil
 	}
+
+	tkns := &tokens{}
+	elems := &Elements{}
+	km := newKeywordManager()
 
 	elems.insert(elementCategoryFileName, filename)
 	newFilename, extension := removeExtensionFromFilename(km, filename)
@@ -51,7 +49,7 @@ func Parse(filename string, options Options) (*Elements, error) {
 	tkz := tokenizer{
 		filename:       filename,
 		options:        options,
-		tokens:         &tkns,
+		tokens:         tkns,
 		keywordManager: km,
 		elements:       elems,
 	}

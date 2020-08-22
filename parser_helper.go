@@ -158,7 +158,7 @@ func getNumberFromOrdinal(str string) int {
 		"5th": 5, "fifth": 5,
 		"6th": 6, "sixth": 6,
 		"7th": 7, "seventh": 7,
-		"8th": 8, "eigth": 8,
+		"8th": 8, "eighth": 8,
 		"9th": 9, "ninth": 9,
 	}
 
