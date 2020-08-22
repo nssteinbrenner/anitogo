@@ -70,13 +70,13 @@ func (t *tokenizer) addToken(cat int, content string, enclosed bool) {
 
 func (t *tokenizer) tokenizeByBrackets() error {
 	brackets := [][]rune{
-		[]rune{'(', ')'},
-		[]rune{'[', ']'},
-		[]rune{'{', '}'},
-		[]rune{'\u300C', '\u300D'},
-		[]rune{'\u300E', '\u300F'},
-		[]rune{'\u3010', '\u3011'},
-		[]rune{'\uFF08', '\uFF09'},
+		{'(', ')'},
+		{'[', ']'},
+		{'{', '}'},
+		{'\u300C', '\u300D'},
+		{'\u300E', '\u300F'},
+		{'\u3010', '\u3011'},
+		{'\uFF08', '\uFF09'},
 	}
 
 	text := t.filename

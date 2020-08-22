@@ -11,6 +11,7 @@ type indexSet struct {
 	BeginPos int
 	EndPos   int
 }
+
 type indexSets []indexSet
 
 type keywordOption struct {
@@ -196,10 +197,10 @@ func (kwm *keywordManager) findWithoutCategory(word string) (keyword, bool) {
 
 func (kwm *keywordManager) peek(word string, e *Elements) (indexSets, error) {
 	entries := map[elementCategory][]string{
-		elementCategoryAudioTerm:       []string{"Dual Audio", "DualAudio"},
-		elementCategoryVideoTerm:       []string{"H264", "H.264", "h264", "h.264"},
-		elementCategoryVideoResolution: []string{"480p", "720p", "1080p"},
-		elementCategorySource:          []string{"Blu-Ray"},
+		elementCategoryAudioTerm:       {"Dual Audio", "DualAudio"},
+		elementCategoryVideoTerm:       {"H264", "H.264", "h264", "h.264"},
+		elementCategoryVideoResolution: {"480p", "720p", "1080p"},
+		elementCategorySource:          {"Blu-Ray"},
 	}
 
 	preIdentifiedTokens := indexSets{}
