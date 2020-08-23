@@ -14,6 +14,7 @@ const (
 	indexTooSmallErr    = "index is less than 0"
 	endIndexTooSmallErr = "end index is smaller than begin index"
 	tokensEmptyErr      = "tokens are empty"
+	tokenNotFoundErr    = "could not find token in tokens"
 )
 
 func traceError(s string) error {

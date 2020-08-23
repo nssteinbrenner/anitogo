@@ -245,6 +245,88 @@ func TestTokensInsert(t *testing.T) {
 	}
 }
 
+func TestTokensGetIndexErrors(t *testing.T) {
+	tkns := &tokens{}
+	tkn := token{
+		Category: tokenCategoryUnknown,
+		Content:  "test",
+		Enclosed: false,
+	}
+	tkns.appendToken(tkn)
+	i, err := tkns.getIndex(tkn, -1)
+	if err == nil {
+		t.Errorf("expected error %s, got nil", indexTooSmallErr)
+	}
+	i, err = tkns.getIndex(tkn, 100)
+	if err == nil {
+		t.Errorf("expected error %s, got nil", indexTooLargeErr)
+	}
+	tkn1 := token{
+		Category: tokenCategoryUnknown,
+		Content:  "test",
+		Enclosed: false,
+		UUID:     "test",
+	}
+	i, err = tkns.getIndex(tkn1, 0)
+	if err != nil {
+		t.Errorf("expected nil, got error %s", err.Error())
+	}
+	if i != -1 {
+		t.Errorf("expected -1, got %d", i)
+	}
+}
+
+func TestElementFields(t *testing.T) {
+	e := &Elements{}
+	found, _ := e.getMultiElementField(elementCategoryUnknown)
+	if found != true {
+		t.Error("expected true, got false")
+	}
+	found, _ = e.getMultiElementField(100)
+	if found != false {
+		t.Error("expected false, got true")
+	}
+	e.insert(elementCategoryDeviceCompatibility, "test")
+	_, field := e.getMultiElementField(elementCategoryDeviceCompatibility)
+	if len(*field) != 1 {
+		t.Errorf("expected len == 1 got %d", len(*field))
+	}
+	e.erase(elementCategoryDeviceCompatibility)
+	if len(*field) != 0 {
+		t.Errorf("expected len == 0 got %d", len(*field))
+	}
+	e.insert(elementCategoryDeviceCompatibility, "test")
+	e.remove(elementCategoryDeviceCompatibility, "test")
+	if len(*field) != 0 {
+		t.Errorf("expected len == 0 got %d", len(*field))
+	}
+	e.erase(elementCategoryDeviceCompatibility)
+	found = e.contains(elementCategoryDeviceCompatibility)
+	if found != false {
+		t.Error("expected false, got true")
+	}
+
+}
+
+func TestRemoveIgnoredStrings(t *testing.T) {
+	s := removeIgnoredStrings("testing this", []string{" ", "this"})
+	if s != "testing" {
+		t.Errorf("expected \"testing\" got \"%s\"", s)
+	}
+}
+
+func TestRemoveExtensionFromFilename(t *testing.T) {
+	s := "[HorribleSubs] Boku no Hero Academia - 01 [1080p].mkv"
+	kwm := newKeywordManager()
+	filename, extension := removeExtensionFromFilename(kwm, s)
+	if filename != "[HorribleSubs] Boku no Hero Academia - 01 [1080p]" {
+		t.Errorf("expected \"[HorribleSubs] Boku no Hero Academia - 01 [1080p]\", got \"%s\"", filename)
+	}
+	if extension != "mkv" {
+		t.Errorf("expected \"mkv\", got \"%s\"", extension)
+	}
+}
+
 func BenchmarkParse(b *testing.B) {
 	testDataPath := os.Getenv("TEST_DATA_PATH")
 	if testDataPath == "" {

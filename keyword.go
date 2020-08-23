@@ -144,9 +144,6 @@ func (kd keyword) empty() bool {
 
 func (kwm *keywordManager) add(cat elementCategory, opt keywordOption, keywords []string) {
 	for _, kw := range keywords {
-		if len(kw) == 0 {
-			continue
-		}
 		if cat != elementCategoryFileExtension {
 			kwm.keywords[kw] = keyword{
 				Category: cat,
@@ -162,10 +159,6 @@ func (kwm *keywordManager) add(cat elementCategory, opt keywordOption, keywords 
 }
 
 func (kwm *keywordManager) find(word string, cat elementCategory) (keyword, bool) {
-	if word == "" {
-		return keyword{}, false
-	}
-
 	if cat != elementCategoryFileExtension {
 		v, ok := kwm.keywords[word]
 		if ok && (v.Category == elementCategoryUnknown || v.Category == cat) {
@@ -181,9 +174,6 @@ func (kwm *keywordManager) find(word string, cat elementCategory) (keyword, bool
 }
 
 func (kwm *keywordManager) findWithoutCategory(word string) (keyword, bool) {
-	if word == "" {
-		return keyword{}, false
-	}
 	v, ok := kwm.keywords[word]
 	if ok {
 		return v, true
@@ -211,9 +201,6 @@ func (kwm *keywordManager) peek(word string, e *Elements) (indexSets, error) {
 			if keywordBeginPos != -1 {
 				e.insert(cat, kw)
 				keywordEndPos := keywordBeginPos + len(kw)
-				if keywordEndPos > len(word) {
-					return indexSets{}, traceError(indexTooLargeErr)
-				}
 				preIdentifiedTokens = append(preIdentifiedTokens, indexSet{keywordBeginPos, keywordEndPos})
 			}
 		}

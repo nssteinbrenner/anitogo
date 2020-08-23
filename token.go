@@ -136,35 +136,22 @@ func (t *tokens) get(index int) (*token, bool) {
 }
 
 func (t *tokens) getList(flag int, begin, end *token) (tokens, error) {
-	var err error
 	beginIndex := -1
 	if begin.UUID != "" {
-		beginIndex, err = t.getIndex(*begin, 0)
-		if err != nil {
-			return tokens{}, err
-		}
-	}
-	if beginIndex > len(*t)-1 {
-		return tokens{}, traceError(indexTooLargeErr)
+		beginIndex, _ = t.getIndex(*begin, 0)
 	}
 	if beginIndex < 0 {
-		return tokens{}, traceError(indexTooSmallErr)
+		return tokens{}, traceError(tokenNotFoundErr)
 	}
 	endIndex := len((*t)) - 1
 	if end.UUID != "" {
-		endIndex, err = t.getIndex(*end, beginIndex)
-		if err != nil {
-			return tokens{}, err
-		}
+		endIndex, _ = t.getIndex(*end, beginIndex)
 	}
 	if endIndex+1 > len(*t) {
 		return tokens{}, traceError(indexTooLargeErr)
 	}
 	if endIndex < 0 {
-		return tokens{}, traceError(indexTooSmallErr)
-	}
-	if endIndex < beginIndex {
-		return tokens{}, traceError(endIndexTooSmallErr)
+		return tokens{}, traceError(tokenNotFoundErr)
 	}
 
 	if flag == -1 {
@@ -207,17 +194,17 @@ func (t *tokens) getIndex(tkn token, index int) (int, error) {
 	return -1, nil
 }
 
-func (t *tokens) distance(begin, end *token) (int, error) {
-	beginIndex, err := t.getIndex(*begin, 0)
-	if err != nil {
-		return -1, err
+func (t *tokens) distance(begin, end *token) int {
+	beginIndex, _ := t.getIndex(*begin, 0)
+	if beginIndex == -1 {
+		return -1
 	}
-	endIndex, err := t.getIndex(*end, beginIndex)
-	if err != nil {
-		return -1, err
+	endIndex, _ := t.getIndex(*end, beginIndex)
+	if endIndex == -1 {
+		return -1
 	}
 
-	return endIndex - beginIndex, nil
+	return endIndex - beginIndex
 }
 
 func (t *tokens) find(flag int) (*token, bool) {
@@ -227,23 +214,12 @@ func (t *tokens) find(flag int) (*token, bool) {
 
 func (t *tokens) findPrevious(tkn token, flag int) (*token, bool, error) {
 	newTkns := tokens{}
-	tokenIndex, err := t.getIndex(tkn, 0)
-	if err != nil {
-		return &token{}, false, err
-	}
-	if tokenIndex > len(*t)-1 {
-		return &token{}, false, traceError(indexTooLargeErr)
-	}
+	tokenIndex, _ := t.getIndex(tkn, 0)
 	if tokenIndex < 0 {
-		return &token{}, false, traceError(indexTooSmallErr)
+		return &token{}, false, traceError(tokenNotFoundErr)
 	}
-	if tkn.empty() {
-		newTkns = append(newTkns, *t...)
-		newTkns = reverseOrder(newTkns)
-	} else {
-		newTkns = append(newTkns, (*t)[:tokenIndex]...)
-		newTkns = reverseOrder(newTkns)
-	}
+	newTkns = append(newTkns, (*t)[:tokenIndex]...)
+	newTkns = reverseOrder(newTkns)
 	retTkn, found := findInTokens(newTkns, flag)
 	return retTkn, found, nil
 }
@@ -254,31 +230,20 @@ func (t *tokens) findNext(tkn token, flag int) (*token, bool, error) {
 	if tkn.empty() {
 		return &token{}, false, nil
 	}
-	tokenIndex, err := t.getIndex(tkn, 0)
-	if err != nil {
-		return &token{}, false, err
-	}
-	if tokenIndex > len(*t)-1 {
-		return &token{}, false, traceError(indexTooLargeErr)
-	}
+	tokenIndex, _ := t.getIndex(tkn, 0)
 	if tokenIndex < 0 {
-		return &token{}, false, traceError(indexTooSmallErr)
+		return &token{}, false, traceError(tokenNotFoundErr)
 	}
 	if !tkn.empty() && tokenIndex+1 <= len(*t)-1 {
 		newTkns = (*t)[tokenIndex+1:]
 	} else if !tkn.empty() && tokenIndex <= len(*t)-1 {
 		newTkns = (*t)[tokenIndex:]
-	} else {
-		return &token{}, false, nil
 	}
 	retTkn, found := findInTokens(newTkns, flag)
 	return retTkn, found, nil
 }
 
 func (t *tokens) isTokenIsolated(tkn token) (bool, error) {
-	if tkn.empty() {
-		return false, nil
-	}
 	previousToken, found, err := t.findPrevious(tkn, tokenFlagsNotDelimiter)
 	if err != nil {
 		return false, err
@@ -304,9 +269,6 @@ func (t *tokens) isTokenIsolated(tkn token) (bool, error) {
 }
 
 func (t *tokens) findInTokens(flag int) (*token, bool) {
-	if len(*t) == 0 {
-		return &token{}, false
-	}
 	for _, tkn := range *t {
 		if tkn.checkFlags(flag) {
 			return tkn, true

@@ -358,11 +358,8 @@ func (p *parser) searchForEpisodeTitle() error {
 		if tokenEnd.empty() {
 			tokenEnd, _ = p.tokenizer.tokens.get(len(*p.tokenizer.tokens) - 1)
 		}
-		dist, err := p.tokenizer.tokens.distance(tokenBegin, tokenEnd)
-		if err != nil {
-			return err
-		}
-		if dist <= 2 && isDashCharacter(tokenBegin.Content) {
+		dist := p.tokenizer.tokens.distance(tokenBegin, tokenEnd)
+		if dist >= 0 && dist <= 2 && isDashCharacter(tokenBegin.Content) {
 			continue
 		}
 
