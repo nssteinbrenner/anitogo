@@ -1,7 +1,6 @@
 package anitogo
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
@@ -393,7 +392,7 @@ func (p *parser) matchEpisodePattern(w string, tkn *token) (bool, error) {
 			return true, nil
 		}
 	}
-	if numericFront {
+	if numericFront || strings.IndexRune(w, '\u7B2C') == 0 {
 		if p.matchJapaneseCounterPattern(w, tkn) {
 			return true, nil
 		}
@@ -577,17 +576,14 @@ func (p *parser) matchNumberSignPattern(w string, tkn *token) bool {
 }
 
 func (p *parser) matchJapaneseCounterPattern(w string, tkn *token) bool {
-	if string(w[len(w)-1]) != strings.Trim(fmt.Sprintf("%q", '\u8A71'), "'") {
+	if strings.IndexRune(w, '\u8A71') == -1 {
 		return false
 	}
 
-	pattern := "(\\d{1,3})\u8A71$"
+	pattern := "(\\d{1,3})話$"
 	re := regexp.MustCompile(pattern)
 	match := re.FindStringSubmatch(w)
 	if match == nil {
-		return false
-	}
-	if strings.Index(w, match[0]) != 0 {
 		return false
 	}
 	if p.setEpisodeNumber(match[1], tkn, false) {

@@ -266,23 +266,27 @@ func (p *parser) searchForAnimeTitle() error {
 
 	if !enclosedTitle {
 		tkn, _, err := p.tokenizer.tokens.findPrevious(*tokenEnd, tokenFlagsNotDelimiter)
-		if err == nil {
-			for tkn.Category == tokenCategoryBracket && tkn.Content != ")" {
-				tkn, _, err = p.tokenizer.tokens.findPrevious(*tkn, tokenFlagsBracket)
-				if err == nil {
-					if !tkn.empty() {
-						tokenEnd = tkn
-						tkn, _, err = p.tokenizer.tokens.findPrevious(*tokenEnd, tokenFlagsNotDelimiter)
-						if err != nil {
-							return err
-						}
+		if err != nil {
+			return err
+		}
+		for tkn.Category == tokenCategoryBracket && tkn.Content != ")" {
+			tkn, _, err = p.tokenizer.tokens.findPrevious(*tkn, tokenFlagsBracket)
+			if err == nil {
+				if !tkn.empty() {
+					tokenEnd = tkn
+					tkn, _, err = p.tokenizer.tokens.findPrevious(*tokenEnd, tokenFlagsNotDelimiter)
+					if err != nil {
+						return err
 					}
 				}
 			}
 		}
 	}
 
-	tokenEnd, _, _ = p.tokenizer.tokens.findPrevious(*tokenEnd, tokenFlagsValid)
+	tokenEnd, _, err = p.tokenizer.tokens.findPrevious(*tokenEnd, tokenFlagsValid)
+	if err != nil {
+		return err
+	}
 	p.buildElement(elementCategoryAnimeTitle, tokenBegin, tokenEnd, false)
 	return nil
 }

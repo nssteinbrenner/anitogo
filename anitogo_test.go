@@ -207,15 +207,15 @@ func TestTokensInsert(t *testing.T) {
 		Content:  "test",
 		Enclosed: false,
 	}
-	err := tkns.insert(100, tkn)
+	err := tkns.insert(-1, tkn)
 	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooLargeErr)
+		t.Errorf("expected error %s, got nil", indexTooSmallErr)
 	} else if err != nil && len(*tkns) > 0 {
 		t.Errorf("expected insert to fail on error, but token was inserted")
 	}
-	err = tkns.insert(-1, tkn)
+	err = tkns.insert(100, tkn)
 	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooSmallErr)
+		t.Errorf("expected error %s, got nil", indexTooLargeErr)
 	} else if err != nil && len(*tkns) > 0 {
 		t.Errorf("expected insert to fail on error, but token was inserted")
 	}
