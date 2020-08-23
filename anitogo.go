@@ -26,7 +26,7 @@ var DefaultOptions = Options{
 // Parsing behavior can be customized in the passed Options struct.
 func Parse(filename string, options Options) (*Elements, error) {
 	if len(filename) == 0 {
-		return &Elements{}, nil
+		return &Elements{}, traceError(emptyFilenameErr)
 	}
 
 	tkns := &tokens{}

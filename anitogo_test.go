@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"os"
-	"strings"
 	"testing"
 )
 
@@ -13,10 +12,19 @@ type failedParse struct {
 	Got      Elements `json:"got"`
 }
 
-func TestParse(t *testing.T) {
+func TestAnitogoParse(t *testing.T) {
 	testDataPath := os.Getenv("TEST_DATA_PATH")
 	if testDataPath == "" {
 		t.Fatal("Missing TEST_DATA_PATH environment variable for json test data file")
+	}
+
+	_, err := Parse("", DefaultOptions)
+	if err == nil {
+		t.Error("expected error, got nil")
+	}
+	_, err = Parse("1", DefaultOptions)
+	if err == nil {
+		t.Error("expected error, got nil")
 	}
 
 	e := []Elements{}
@@ -165,157 +173,14 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func TestTraceError(t *testing.T) {
-	err := traceError(indexTooLargeErr)
-	if err == nil {
-		t.Error("expected error got nil")
-	} else {
-		if strings.Index(err.Error(), indexTooLargeErr) == -1 {
-			t.Errorf("expected %s in error, got %s", indexTooLargeErr, err.Error())
-		}
-	}
-	err = traceError(indexTooSmallErr)
-	if err == nil {
-		t.Error("expected error got nil")
-	} else {
-		if strings.Index(err.Error(), indexTooSmallErr) == -1 {
-			t.Errorf("expected %s in error, got %s", indexTooSmallErr, err.Error())
-		}
-	}
-	err = traceError(endIndexTooSmallErr)
-	if err == nil {
-		t.Error("expected error got nil")
-	} else {
-		if strings.Index(err.Error(), endIndexTooSmallErr) == -1 {
-			t.Errorf("expected %s in error, got %s", endIndexTooSmallErr, err.Error())
-		}
-	}
-	err = traceError(tokensEmptyErr)
-	if err == nil {
-		t.Error("expected error got nil")
-	} else {
-		if strings.Index(err.Error(), tokensEmptyErr) == -1 {
-			t.Errorf("expected %s in error, got %s", tokensEmptyErr, err.Error())
-		}
-	}
-}
-
-func TestTokensInsert(t *testing.T) {
-	tkns := &tokens{}
-	tkn := token{
-		Category: tokenCategoryUnknown,
-		Content:  "test",
-		Enclosed: false,
-	}
-	err := tkns.insert(-1, tkn)
-	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooSmallErr)
-	} else if err != nil && len(*tkns) > 0 {
-		t.Errorf("expected insert to fail on error, but token was inserted")
-	}
-	err = tkns.insert(100, tkn)
-	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooLargeErr)
-	} else if err != nil && len(*tkns) > 0 {
-		t.Errorf("expected insert to fail on error, but token was inserted")
-	}
-	err = tkns.insert(0, tkn)
-	if err != nil {
-		t.Errorf("expected token to insert successfully, but got %s", err.Error())
-	} else if err == nil && len(*tkns) == 0 {
-		t.Errorf("expected insert to succeed without error returned, but token was not inserted")
-	}
-	oldUUID := (*tkns)[0].UUID
-	err = tkns.insert(0, tkn)
-	if err != nil {
-		t.Errorf("expected token to insert successfully, but got %s", err.Error())
-	} else if err == nil && len(*tkns) > 1 {
-		t.Errorf("expected insert to fail for duplicate token, but token was inserted")
-	} else if (*tkns)[0].UUID != oldUUID {
-		t.Errorf("expected token at 0 index stay the same, but it was replaced")
-	}
-	tkn.Content = "test1"
-	err = tkns.insert(0, tkn)
-	if err != nil {
-		t.Errorf("expected token to insert successfully, but got %s", err.Error())
-	} else if err == nil && len(*tkns) > 1 {
-		t.Errorf("expected insert to fail for duplicate token, but token was inserted")
-	} else if (*tkns)[0].UUID == oldUUID {
-		t.Errorf("expected token at 0 index be replaced, but it stayed the same")
-	}
-}
-
-func TestTokensGetIndexErrors(t *testing.T) {
-	tkns := &tokens{}
-	tkn := token{
-		Category: tokenCategoryUnknown,
-		Content:  "test",
-		Enclosed: false,
-	}
-	tkns.appendToken(tkn)
-	i, err := tkns.getIndex(tkn, -1)
-	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooSmallErr)
-	}
-	i, err = tkns.getIndex(tkn, 100)
-	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooLargeErr)
-	}
-	tkn1 := token{
-		Category: tokenCategoryUnknown,
-		Content:  "test",
-		Enclosed: false,
-		UUID:     "test",
-	}
-	i, err = tkns.getIndex(tkn1, 0)
-	if err != nil {
-		t.Errorf("expected nil, got error %s", err.Error())
-	}
-	if i != -1 {
-		t.Errorf("expected -1, got %d", i)
-	}
-}
-
-func TestElementFields(t *testing.T) {
-	e := &Elements{}
-	found, _ := e.getMultiElementField(elementCategoryUnknown)
-	if found != true {
-		t.Error("expected true, got false")
-	}
-	found, _ = e.getMultiElementField(100)
-	if found != false {
-		t.Error("expected false, got true")
-	}
-	e.insert(elementCategoryDeviceCompatibility, "test")
-	_, field := e.getMultiElementField(elementCategoryDeviceCompatibility)
-	if len(*field) != 1 {
-		t.Errorf("expected len == 1 got %d", len(*field))
-	}
-	e.erase(elementCategoryDeviceCompatibility)
-	if len(*field) != 0 {
-		t.Errorf("expected len == 0 got %d", len(*field))
-	}
-	e.insert(elementCategoryDeviceCompatibility, "test")
-	e.remove(elementCategoryDeviceCompatibility, "test")
-	if len(*field) != 0 {
-		t.Errorf("expected len == 0 got %d", len(*field))
-	}
-	e.erase(elementCategoryDeviceCompatibility)
-	found = e.contains(elementCategoryDeviceCompatibility)
-	if found != false {
-		t.Error("expected false, got true")
-	}
-
-}
-
-func TestRemoveIgnoredStrings(t *testing.T) {
+func TestAnitogoRemoveIgnoredStrings(t *testing.T) {
 	s := removeIgnoredStrings("testing this", []string{" ", "this"})
 	if s != "testing" {
 		t.Errorf("expected \"testing\" got \"%s\"", s)
 	}
 }
 
-func TestRemoveExtensionFromFilename(t *testing.T) {
+func TestAnitogoRemoveExtensionFromFilename(t *testing.T) {
 	s := "[HorribleSubs] Boku no Hero Academia - 01 [1080p].mkv"
 	kwm := newKeywordManager()
 	filename, extension := removeExtensionFromFilename(kwm, s)
@@ -327,7 +192,7 @@ func TestRemoveExtensionFromFilename(t *testing.T) {
 	}
 }
 
-func BenchmarkParse(b *testing.B) {
+func BenchmarkAnitogoParse(b *testing.B) {
 	testDataPath := os.Getenv("TEST_DATA_PATH")
 	if testDataPath == "" {
 		b.Fatal("Missing TEST_DATA_PATH environment variable for json test data file")

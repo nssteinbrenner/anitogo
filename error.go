@@ -15,6 +15,7 @@ const (
 	endIndexTooSmallErr = "end index is smaller than begin index"
 	tokensEmptyErr      = "tokens are empty"
 	tokenNotFoundErr    = "could not find token in tokens"
+	emptyFilenameErr    = "can not parse empty filename"
 )
 
 func traceError(s string) error {

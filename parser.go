@@ -358,7 +358,7 @@ func (p *parser) searchForEpisodeTitle() error {
 		if tokenEnd.empty() {
 			tokenEnd, _ = p.tokenizer.tokens.get(len(*p.tokenizer.tokens) - 1)
 		}
-		dist, err := p.tokenizer.tokens.distance(tokenBegin, tokenEnd)
+		dist := p.tokenizer.tokens.distance(tokenBegin, tokenEnd)
 		if err != nil {
 			return err
 		}
