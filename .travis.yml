@@ -1,0 +1,19 @@
+language: go
+
+go:
+    - "1.15"
+
+branches:
+  only:
+    - master
+
+install:
+  - go get golang.org/x/tools/cmd/cover
+  - go get github.com/mattn/goveralls
+
+before_script:
+  - go vet *.go
+
+script:
+  - "TEST_DATA_PATH=./test/data.json go test -v ./..."
+
