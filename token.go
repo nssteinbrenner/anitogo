@@ -99,7 +99,17 @@ func (t *tokens) appendToken(tkn token) {
 }
 
 func (t *tokens) insert(index int, tkn token) error {
-	if index >= len(*t)-1 {
+	if index == 0 {
+		if len(*t) == 0 {
+			tkn.UUID = uuid.New().String()
+			(*t) = append((*t), &tkn)
+			return nil
+		} else if len(*t) == 1 && tkn.Content != (*t)[index].Content {
+			tkn.UUID = uuid.New().String()
+			(*t)[index] = &tkn
+			return nil
+		}
+	} else if index >= len(*t)-1 {
 		return traceError(indexTooLargeErr)
 	} else if index < 0 {
 		return traceError(indexTooSmallErr)

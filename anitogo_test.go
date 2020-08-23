@@ -200,6 +200,51 @@ func TestTraceError(t *testing.T) {
 	}
 }
 
+func TestTokensInsert(t *testing.T) {
+	tkns := &tokens{}
+	tkn := token{
+		Category: tokenCategoryUnknown,
+		Content:  "test",
+		Enclosed: false,
+	}
+	err := tkns.insert(100, tkn)
+	if err == nil {
+		t.Errorf("expected error %s, got nil", indexTooLargeErr)
+	} else if err != nil && len(*tkns) > 0 {
+		t.Errorf("expected insert to fail on error, but token was inserted")
+	}
+	err = tkns.insert(-1, tkn)
+	if err == nil {
+		t.Errorf("expected error %s, got nil", indexTooSmallErr)
+	} else if err != nil && len(*tkns) > 0 {
+		t.Errorf("expected insert to fail on error, but token was inserted")
+	}
+	err = tkns.insert(0, tkn)
+	if err != nil {
+		t.Errorf("expected token to insert successfully, but got %s", err.Error())
+	} else if err == nil && len(*tkns) == 0 {
+		t.Errorf("expected insert to succeed without error returned, but token was not inserted")
+	}
+	oldUUID := (*tkns)[0].UUID
+	err = tkns.insert(0, tkn)
+	if err != nil {
+		t.Errorf("expected token to insert successfully, but got %s", err.Error())
+	} else if err == nil && len(*tkns) > 1 {
+		t.Errorf("expected insert to fail for duplicate token, but token was inserted")
+	} else if (*tkns)[0].UUID != oldUUID {
+		t.Errorf("expected token at 0 index stay the same, but it was replaced")
+	}
+	tkn.Content = "test1"
+	err = tkns.insert(0, tkn)
+	if err != nil {
+		t.Errorf("expected token to insert successfully, but got %s", err.Error())
+	} else if err == nil && len(*tkns) > 1 {
+		t.Errorf("expected insert to fail for duplicate token, but token was inserted")
+	} else if (*tkns)[0].UUID == oldUUID {
+		t.Errorf("expected token at 0 index be replaced, but it stayed the same")
+	}
+}
+
 func BenchmarkParse(b *testing.B) {
 	testDataPath := os.Getenv("TEST_DATA_PATH")
 	if testDataPath == "" {
