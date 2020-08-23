@@ -109,7 +109,7 @@ func (t *tokens) insert(index int, tkn token) error {
 			(*t)[index] = &tkn
 			return nil
 		}
-	} else if index >= len(*t)-1 {
+	} else if index > len(*t)-1 {
 		return traceError(indexTooLargeErr)
 	} else if index < 0 {
 		return traceError(indexTooSmallErr)

@@ -2564,5 +2564,20 @@
     "file_extension": "zip",
     "file_name": "3(無修正)[milky]燐月 リンゲツ THE ANIMATION 第1話 「宿命の契り」.zip",
     "release_group": "宿命の契り"
+  },
+  {
+    "anime_season": [
+      "01",
+      "03"
+    ],
+    "anime_title": "Boku no Hero Academia",
+    "episode_number": [
+      "01",
+      "75"
+    ],
+    "file_extension": "mkv",
+    "file_name": "[HorribleSubs] Boku no Hero Academia S01-S03E01-E75 [1080p].mkv",
+    "release_group": "HorribleSubs",
+    "video_resolution": "1080p"
   }
 ]
