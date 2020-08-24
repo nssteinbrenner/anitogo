@@ -16,6 +16,8 @@ before_script:
   - go vet *.go
 
 script:
-  - "TEST_DATA_PATH=./test/data.json go test -v ./..."
-  - "TEST_DATA_PATH=./test/data.json go test -v -covermode=count -coverprofile=coverage.out"
-  - "$GOPATH/bin/goveralls -coverprofile=coverage.out -service=travis-ci"
+  - TEST_DATA_PATH=./test/data.json go test -v ./...
+  - TEST_DATA_PATH=./test/data.json go test -v -race -covermode=atomic -coverprofile=coverage.txt
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
