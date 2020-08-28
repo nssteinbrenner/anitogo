@@ -3,10 +3,6 @@ language: go
 go:
     - "1.15"
 
-branches:
-  only:
-    - master
-
 install:
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/mattn/goveralls

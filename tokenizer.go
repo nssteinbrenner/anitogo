@@ -116,16 +116,13 @@ func (t *tokenizer) tokenizeByBrackets() error {
 }
 
 func (t *tokenizer) tokenizeByPreidentified(filename string, enclosed bool) error {
-	preIdentifiedtokens, err := t.keywordManager.peek(filename, t.elements)
-	if err != nil {
-		return err
-	}
+	preIdentifiedtokens := t.keywordManager.peek(filename, t.elements)
 
 	lastTokenEndPos := 0
 	for _, preIdentified := range preIdentifiedtokens {
 		tknBeginPos := preIdentified.BeginPos
 		tknEndPos := preIdentified.EndPos
-		if lastTokenEndPos != tknBeginPos && tknBeginPos <= len(filename) {
+		if lastTokenEndPos != tknBeginPos {
 			err := t.tokenizeByDelimiters(filename[lastTokenEndPos:tknBeginPos], enclosed)
 			if err != nil {
 				return err
@@ -164,11 +161,11 @@ func (t *tokenizer) tokenizeByDelimiters(filename string, enclosed bool) error {
 			}
 		}
 	}
-	err := t.validateDelimitertokens()
+	err := t.validateDelimiterTokens()
 	return err
 }
 
-func (t *tokenizer) validateDelimitertokens() error {
+func (t *tokenizer) validateDelimiterTokens() error {
 	for _, tkn := range *t.tokens {
 		if tkn.Category != tokenCategoryDelimiter {
 			continue
@@ -195,7 +192,7 @@ func (t *tokenizer) validateDelimitertokens() error {
 					if err != nil {
 						return err
 					}
-					if nestedNextToken == *nextToken {
+					if nestedNextToken.Content == nextToken.Content {
 						nextToken.Category = tokenCategoryInvalid
 					}
 					holder, _, err := t.findNextValidToken(&nestedNextToken)

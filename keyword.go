@@ -185,7 +185,7 @@ func (kwm *keywordManager) findWithoutCategory(word string) (keyword, bool) {
 	return keyword{}, false
 }
 
-func (kwm *keywordManager) peek(word string, e *Elements) (indexSets, error) {
+func (kwm *keywordManager) peek(word string, e *Elements) indexSets {
 	entries := map[elementCategory][]string{
 		elementCategoryAudioTerm:       {"Dual Audio", "DualAudio"},
 		elementCategoryVideoTerm:       {"H264", "H.264", "h264", "h.264"},
@@ -206,7 +206,7 @@ func (kwm *keywordManager) peek(word string, e *Elements) (indexSets, error) {
 		}
 	}
 	sort.Sort(preIdentifiedTokens)
-	return preIdentifiedTokens, nil
+	return preIdentifiedTokens
 }
 
 func (kwm *keywordManager) normalize(text string) string {
