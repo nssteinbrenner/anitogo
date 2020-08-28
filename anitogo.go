@@ -24,9 +24,9 @@ var DefaultOptions = Options{
 // If an error is encountered during the process, Parse will return an empty pointer to an Elements struct.
 //
 // Parsing behavior can be customized in the passed Options struct.
-func Parse(filename string, options Options) (*Elements, error) {
+func Parse(filename string, options Options) *Elements {
 	if len(filename) == 0 {
-		return &Elements{}, traceError(emptyFilenameErr)
+		return &Elements{}
 	}
 
 	tkns := &tokens{}
@@ -53,18 +53,12 @@ func Parse(filename string, options Options) (*Elements, error) {
 		keywordManager: km,
 		elements:       elems,
 	}
-	err := tkz.tokenize()
-	if err != nil {
-		return &Elements{}, err
-	}
+	tkz.tokenize()
 
 	psr := newParser(&tkz)
-	err = psr.parse()
-	if err != nil {
-		return &Elements{}, err
-	}
+	psr.parse()
 
-	return psr.tokenizer.elements, nil
+	return psr.tokenizer.elements
 }
 
 func removeExtensionFromFilename(km *keywordManager, filename string) (string, string) {

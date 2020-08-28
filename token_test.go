@@ -57,39 +57,29 @@ func TestTokensInsert(t *testing.T) {
 		Content:  "test",
 		Enclosed: false,
 	}
-	err := tkns.insert(-1, tkn)
-	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooSmallErr)
-	} else if err != nil && len(*tkns) > 0 {
-		t.Errorf("expected insert to fail on error, but token was inserted")
+	tkns.insert(-1, tkn)
+	if len(*tkns) > 0 {
+		t.Errorf("expected insert to fail on negative index, but token was inserted")
 	}
-	err = tkns.insert(100, tkn)
-	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooLargeErr)
-	} else if err != nil && len(*tkns) > 0 {
-		t.Errorf("expected insert to fail on error, but token was inserted")
+	tkns.insert(100, tkn)
+	if len(*tkns) > 0 {
+		t.Errorf("expected insert to fail on too large index, but token was inserted")
 	}
-	err = tkns.insert(0, tkn)
-	if err != nil {
-		t.Errorf("expected token to insert successfully, but got %s", err.Error())
-	} else if err == nil && len(*tkns) == 0 {
-		t.Errorf("expected insert to succeed without error returned, but token was not inserted")
+	tkns.insert(0, tkn)
+	if len(*tkns) == 0 {
+		t.Errorf("expected insert to succeed, but token was not inserted")
 	}
 	oldUUID := (*tkns)[0].UUID
-	err = tkns.insert(0, tkn)
-	if err != nil {
-		t.Errorf("expected token to insert successfully, but got %s", err.Error())
-	} else if err == nil && len(*tkns) > 1 {
-		t.Errorf("expected insert to fail for duplicate token, but token was inserted")
+	tkns.insert(0, tkn)
+	if len(*tkns) > 1 {
+		t.Errorf("expected insert to not do anything on duplicate token, but token was inserted")
 	} else if (*tkns)[0].UUID != oldUUID {
 		t.Errorf("expected token at 0 index stay the same, but it was replaced")
 	}
 	tkn.Content = "test1"
-	err = tkns.insert(0, tkn)
-	if err != nil {
-		t.Errorf("expected token to insert successfully, but got %s", err.Error())
-	} else if err == nil && len(*tkns) > 1 {
-		t.Errorf("expected insert to fail for duplicate token, but token was inserted")
+	tkns.insert(0, tkn)
+	if len(*tkns) > 1 {
+		t.Errorf("expected insert to not do anything on duplicate token, but token was inserted")
 	} else if (*tkns)[0].UUID == oldUUID {
 		t.Errorf("expected token at 0 index be replaced, but it stayed the same")
 	}
@@ -135,9 +125,9 @@ func TestTokensGetList(t *testing.T) {
 		Enclosed: false,
 	}
 	*tkns = append(*tkns, tkn)
-	_, err := tkns.getList(1, tkn, tkn)
-	if err == nil {
-		t.Error("expected error, got nil")
+	retTkns := tkns.getList(1, tkn, tkn)
+	if len(retTkns) > 0 {
+		t.Error("expected empty tokens")
 	}
 	tkn.UUID = "test"
 	(*tkns)[0].UUID = "test"
@@ -147,22 +137,34 @@ func TestTokensGetList(t *testing.T) {
 		Enclosed: false,
 		UUID:     "test1",
 	}
-	_, err = tkns.getList(-1, tkn, tkn1)
-	if err == nil {
-		t.Error("expected error, got nil")
+	retTkns = tkns.getList(-1, tkn, tkn1)
+	if len(retTkns) > 0 {
+		t.Error("expected empty tokens")
 	}
 	*tkns = append(*tkns, tkn1)
-	_, err = tkns.getList(-1, tkn, tkn1)
-	if err != nil {
-		t.Error("expected nil, got error")
+	retTkns = tkns.getList(tokenFlagsUnknown, tkn, tkn1)
+	if len(retTkns) == 0 {
+		t.Error("expected tokens with length greater than 0")
 	}
 }
 
 func TestTokensGetListFlag(t *testing.T) {
+	tkn := &token{
+		Category: tokenCategoryUnknown,
+		Content:  "test",
+		Enclosed: false,
+	}
 	tkns := &tokens{}
 	retTkns := tkns.getListFlag(-1)
 	if len(retTkns) != 0 {
 		t.Error("expected empty token slice")
+	}
+	tkns.appendToken(*tkn)
+	tkns.appendToken(*tkn)
+	tkns.appendToken(*tkn)
+	retTkns = tkns.getListFlag(tokenFlagsUnknown)
+	if len(retTkns) == 0 {
+		t.Error("expected tokens with length greater than 0")
 	}
 }
 
@@ -174,19 +176,16 @@ func TestTokensGetIndex(t *testing.T) {
 		Enclosed: false,
 	}
 	tkns.appendToken(tkn)
-	i, err := tkns.getIndex(tkn, -1)
-	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooSmallErr)
+	i := tkns.getIndex(tkn, -1)
+	if i != -1 {
+		t.Errorf("expected error -1, got %d", i)
 	}
-	i, err = tkns.getIndex(tkn, 100)
-	if err == nil {
-		t.Errorf("expected error %s, got nil", indexTooLargeErr)
+	i = tkns.getIndex(tkn, 100)
+	if i != -1 {
+		t.Errorf("expected error -1, got %d", i)
 	}
 	tkn1 := (*tkns)[0]
-	i, err = tkns.getIndex(*tkn1, 0)
-	if err != nil {
-		t.Errorf("expected success, got err %s", err.Error())
-	}
+	i = tkns.getIndex(*tkn1, 0)
 	if i != 0 {
 		t.Errorf("expected 0, got %d", i)
 	}
@@ -196,10 +195,7 @@ func TestTokensGetIndex(t *testing.T) {
 		Enclosed: false,
 		UUID:     "test1",
 	}
-	i, err = tkns.getIndex(tkn2, 0)
-	if err != nil {
-		t.Errorf("expected nil, got error %s", err.Error())
-	}
+	i = tkns.getIndex(tkn2, 0)
 	if i != -1 {
 		t.Errorf("expected -1, got %d", i)
 	}
@@ -208,19 +204,33 @@ func TestTokensGetIndex(t *testing.T) {
 func TestTokensFindPrevious(t *testing.T) {
 	tkns := &tokens{}
 	tkn := token{
-		Category: tokenCategoryUnknown,
+		Category: tokenCategoryBracket,
 		Content:  "test",
 		Enclosed: false,
 	}
-	_, _, err := tkns.findPrevious(tkn, -1)
-	if err == nil {
-		t.Error("expected error, got nil")
+	retTkn, found := tkns.findPrevious(tkn, -1)
+	if found {
+		t.Error("expected false, got true")
+	}
+	if !retTkn.empty() {
+		t.Error("expected empty token")
 	}
 	tkn1 := token{}
 	*tkns = append(*tkns, &tkn1)
-	_, _, err = tkns.findPrevious(tkn1, -1)
-	if err != nil {
-		t.Error("expected nil, got error")
+	retTkn, found = tkns.findPrevious(tkn1, -1)
+	if found {
+		t.Error("expected false, got true")
+	}
+	if !retTkn.empty() {
+		t.Error("expected empty token")
+	}
+	psr := getTestParser("")
+	retTkn, found = psr.tokenizer.tokens.findPrevious(*(*psr.tokenizer.tokens)[len(*psr.tokenizer.tokens)-1], tokenFlagsUnknown)
+	if !found {
+		t.Error("expected true, got false")
+	}
+	if retTkn.empty() {
+		t.Error("expected non-empty token")
 	}
 }
 
@@ -231,33 +241,70 @@ func TestTokensFindNext(t *testing.T) {
 		Content:  "test",
 		Enclosed: false,
 	}
-	_, _, err := tkns.findNext(tkn, -1)
-	if err == nil {
-		t.Error("expected error, got nil")
+	retTkn, found := tkns.findNext(token{}, -1)
+	if found {
+		t.Error("expected false, got true")
+	}
+	if !retTkn.empty() {
+		t.Error("expected empty token")
+	}
+	retTkn, found = tkns.findNext(tkn, -1)
+	if found {
+		t.Error("expected false, got true")
+	}
+	if !retTkn.empty() {
+		t.Error("expected empty token")
 	}
 	tkn1 := token{}
 	*tkns = append(*tkns, &tkn1)
-	_, _, err = tkns.findPrevious(tkn1, -1)
-	if err != nil {
-		t.Error("expected nil, got error")
+	retTkn, found = tkns.findNext(tkn1, -1)
+	if found {
+		t.Error("expected false, got true")
+	}
+	if !retTkn.empty() {
+		t.Error("expected empty token")
+	}
+	psr := getTestParser("")
+	retTkn, found = psr.tokenizer.tokens.findNext(*(*psr.tokenizer.tokens)[0], tokenFlagsUnknown)
+	if !found {
+		t.Error("expected true, got false")
+	}
+	if retTkn.empty() {
+		t.Error("expected non-empty token")
 	}
 }
 
 func TestTokensIsTokenIsolated(t *testing.T) {
 	tkns := &tokens{}
 	tkn := token{}
-	found, _ := tkns.isTokenIsolated(tkn)
-	if found {
+	if tkns.isTokenIsolated(tkn) {
 		t.Error("expected false, got true")
 	}
 	tkn = token{
-		Category: tokenCategoryUnknown,
+		Category: tokenCategoryIdentifier,
 		Content:  "test",
 		Enclosed: false,
 	}
-	_, err := tkns.isTokenIsolated(tkn)
-	if err == nil {
-		t.Error("expected error, got nil")
+	if tkns.isTokenIsolated(tkn) {
+		t.Error("expected false, got true")
+	}
+
+	psr := getTestParser("")
+	(*psr.tokenizer.tokens)[len(*psr.tokenizer.tokens)-2].Category = tokenCategoryBracket
+	if psr.tokenizer.tokens.isTokenIsolated(*(*psr.tokenizer.tokens)[len(*psr.tokenizer.tokens)-1]) {
+		t.Error("expected false, got true")
+	}
+
+	var testTkn *token
+	psr = getTestParser("")
+	for _, v := range *psr.tokenizer.tokens {
+		if v.Content == "Toradora!" {
+			testTkn = v
+			break
+		}
+	}
+	if !psr.tokenizer.tokens.isTokenIsolated(*testTkn) {
+		t.Error("expected true, got false")
 	}
 }
 
@@ -265,6 +312,11 @@ func TestTokensFindInTokens(t *testing.T) {
 	tkns := &tokens{}
 	_, found := tkns.findInTokens(1)
 	if found != false {
-		t.Errorf("expected false, got true")
+		t.Error("expected false, got true")
+	}
+	psr := getTestParser("")
+	_, found = psr.tokenizer.tokens.findInTokens(tokenFlagsUnknown)
+	if !found {
+		t.Error("expected true, got false")
 	}
 }

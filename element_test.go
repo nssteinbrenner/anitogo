@@ -7,6 +7,7 @@ import (
 var multiElementFields = []elementCategory{
 	elementCategoryAnimeSeason,
 	elementCategoryAnimeSeasonPrefix,
+	elementCategoryAnimeType,
 	elementCategoryAudioTerm,
 	elementCategoryDeviceCompatibility,
 	elementCategoryEpisodeNumber,
@@ -26,7 +27,6 @@ var multiElementFields = []elementCategory{
 
 var singleElementFields = []elementCategory{
 	elementCategoryAnimeTitle,
-	elementCategoryAnimeType,
 	elementCategoryAnimeYear,
 	elementCategoryEpisodeTitle,
 	elementCategoryFileChecksum,
@@ -182,4 +182,9 @@ func TestElementGetIndex(t *testing.T) {
 	if i != 1 {
 		t.Errorf("expected 1, got %d", i)
 	}
+}
+
+func TestElementRemove(t *testing.T) {
+	e := &Elements{}
+	e.remove(elementCategoryEpisodeNumber, "1A")
 }

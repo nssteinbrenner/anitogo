@@ -17,14 +17,19 @@ func TestAnitogoParse(t *testing.T) {
 	if testDataPath == "" {
 		t.Fatal("Missing TEST_DATA_PATH environment variable for json test data file")
 	}
-
-	_, err := Parse("", DefaultOptions)
-	if err == nil {
-		t.Error("expected error, got nil")
+	retElems := Parse("", DefaultOptions)
+	if retElems.FileName != "" {
+		t.Error("expected empty elements")
 	}
-	_, err = Parse("1", DefaultOptions)
-	if err == nil {
-		t.Error("expected error, got nil")
+	retElems = Parse("1", DefaultOptions)
+	if retElems.AnimeTitle != "" {
+		t.Error("expected empty anime title")
+	}
+	noReleaseGroup := DefaultOptions
+	noReleaseGroup.ParseReleaseGroup = false
+	retElems = Parse("[THORA]_Toradora!_(2008)_-_01v2_-_Tiger_and_Dragon_[1280x720_H.264_FLAC][1234ABCD].mkv", noReleaseGroup)
+	if retElems.ReleaseGroup != "" {
+		t.Error("expected empty release group")
 	}
 
 	e := []Elements{}
@@ -40,10 +45,7 @@ func TestAnitogoParse(t *testing.T) {
 	}
 	json.Unmarshal(byteValue, &e)
 	for _, v := range e {
-		ret, err := Parse(v.FileName, DefaultOptions)
-		if err != nil {
-			t.Error(err)
-		}
+		ret := Parse(v.FileName, DefaultOptions)
 		if !equal(v.AnimeSeason, ret.AnimeSeason) {
 			notMatched = append(notMatched, failedParse{
 				Expected: v,
@@ -210,10 +212,7 @@ func BenchmarkAnitogoParse(b *testing.B) {
 	json.Unmarshal(byteValue, &e)
 	for n := 0; n < b.N; n++ {
 		for _, v := range e {
-			_, err := Parse(v.FileName, DefaultOptions)
-			if err != nil {
-				b.Error(err)
-			}
+			Parse(v.FileName, DefaultOptions)
 		}
 	}
 }

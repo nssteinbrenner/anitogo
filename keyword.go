@@ -8,21 +8,21 @@ import (
 )
 
 type indexSet struct {
-	BeginPos int
-	EndPos   int
+	beginPos int
+	endPos   int
 }
 
 type indexSets []indexSet
 
 type keywordOption struct {
-	Identifiable bool
-	Searchable   bool
-	Valid        bool
+	identifiable bool
+	searchable   bool
+	valid        bool
 }
 
 type keyword struct {
-	Category elementCategory
-	Options  keywordOption
+	category elementCategory
+	options  keywordOption
 }
 
 type keywordManager struct {
@@ -32,29 +32,29 @@ type keywordManager struct {
 
 var (
 	keywordOptionsDefault = keywordOption{
-		Identifiable: true,
-		Searchable:   true,
-		Valid:        true,
+		identifiable: true,
+		searchable:   true,
+		valid:        true,
 	}
 	keywordOptionsInvalid = keywordOption{
-		Identifiable: true,
-		Searchable:   true,
-		Valid:        false,
+		identifiable: true,
+		searchable:   true,
+		valid:        false,
 	}
 	keywordOptionsUnidentifiable = keywordOption{
-		Identifiable: false,
-		Searchable:   true,
-		Valid:        true,
+		identifiable: false,
+		searchable:   true,
+		valid:        true,
 	}
 	keywordOptionsUnidentifiableInvalid = keywordOption{
-		Identifiable: false,
-		Searchable:   true,
-		Valid:        false,
+		identifiable: false,
+		searchable:   true,
+		valid:        false,
 	}
 	keywordOptionsUnidentifiableUnsearchable = keywordOption{
-		Identifiable: false,
-		Searchable:   false,
-		Valid:        true,
+		identifiable: false,
+		searchable:   false,
+		valid:        true,
 	}
 )
 
@@ -146,13 +146,13 @@ func (kwm *keywordManager) add(cat elementCategory, opt keywordOption, keywords 
 	for _, kw := range keywords {
 		if cat != elementCategoryFileExtension {
 			kwm.keywords[kw] = keyword{
-				Category: cat,
-				Options:  opt,
+				category: cat,
+				options:  opt,
 			}
 		} else {
 			kwm.fileExtensions[kw] = keyword{
-				Category: cat,
-				Options:  opt,
+				category: cat,
+				options:  opt,
 			}
 		}
 	}
@@ -161,7 +161,7 @@ func (kwm *keywordManager) add(cat elementCategory, opt keywordOption, keywords 
 func (kwm *keywordManager) find(word string, cat elementCategory) (keyword, bool) {
 	if cat != elementCategoryFileExtension {
 		v, ok := kwm.keywords[word]
-		if ok && (v.Category == elementCategoryUnknown || v.Category == cat) {
+		if ok && (v.category == elementCategoryUnknown || v.category == cat) {
 			return v, true
 		}
 	} else {
@@ -197,11 +197,11 @@ func (kwm *keywordManager) peek(word string, e *Elements) indexSets {
 
 	for cat, keywords := range entries {
 		for _, kw := range keywords {
-			keywordBeginPos := strings.Index(word, kw)
-			if keywordBeginPos != -1 {
+			keywordbeginPos := strings.Index(word, kw)
+			if keywordbeginPos != -1 {
 				e.insert(cat, kw)
-				keywordEndPos := keywordBeginPos + len(kw)
-				preIdentifiedTokens = append(preIdentifiedTokens, indexSet{keywordBeginPos, keywordEndPos})
+				keywordendPos := keywordbeginPos + len(kw)
+				preIdentifiedTokens = append(preIdentifiedTokens, indexSet{keywordbeginPos, keywordendPos})
 			}
 		}
 	}
@@ -220,7 +220,7 @@ func (idxSet indexSets) Len() int {
 }
 
 func (idxSet indexSets) Less(i, j int) bool {
-	return (idxSet[i].BeginPos + idxSet[i].EndPos) < (idxSet[j].BeginPos + idxSet[j].EndPos)
+	return (idxSet[i].beginPos + idxSet[i].endPos) < (idxSet[j].beginPos + idxSet[j].endPos)
 }
 
 func (idxSet indexSets) Swap(i, j int) {
