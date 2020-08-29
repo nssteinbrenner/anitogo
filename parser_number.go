@@ -13,19 +13,13 @@ const (
 	volumeNumberMax  = 20
 )
 
-func (p *parser) checkExtentKeyword(cat elementCategory, tkn *token) (bool, error) {
-	nextToken, _, err := p.tokenizer.tokens.findNext(*tkn, tokenFlagsNotDelimiter)
-	if err != nil {
-		return false, err
-	}
+func (p *parser) checkExtentKeyword(cat elementCategory, tkn *token) bool {
+	nextToken, _ := p.tokenizer.tokens.findNext(*tkn, tokenFlagsNotDelimiter)
 
 	if nextToken.Category == tokenCategoryUnknown {
 		if !nextToken.empty() && findNumberInString(nextToken.Content) > -1 {
 			if cat == elementCategoryEpisodeNumber {
-				match, err := p.matchEpisodePattern(nextToken.Content, nextToken)
-				if err != nil {
-					return false, err
-				}
+				match := p.matchEpisodePattern(nextToken.Content, nextToken)
 				if !match {
 					p.setEpisodeNumber(nextToken.Content, nextToken, false)
 				}
@@ -34,66 +28,46 @@ func (p *parser) checkExtentKeyword(cat elementCategory, tkn *token) (bool, erro
 					p.setVolumeNumber(nextToken.Content, nextToken, false)
 				}
 			} else {
-				return false, nil
+				return false
 			}
 			tkn.Category = tokenCategoryIdentifier
-			return true, nil
+			return true
 		}
 	}
 
-	return false, nil
+	return false
 }
 
-func (p *parser) searchForEpisodePatterns(tkns tokens) (bool, error) {
+func (p *parser) searchForEpisodePatterns(tkns tokens) bool {
 	for _, tkn := range tkns {
 		numericFront := isNumeric(string(tkn.Content[0]))
 
 		if !numericFront {
-			match, err := p.numberComesAfterPrefix(elementCategoryEpisodePrefix, tkn)
-			if err != nil {
-				return false, err
+			if p.numberComesAfterPrefix(elementCategoryEpisodePrefix, tkn) {
+				return true
 			}
-			if match {
-				return true, nil
-			}
-			match, err = p.numberComesAfterPrefix(elementCategoryVolumePrefix, tkn)
-			if err != nil {
-				return false, err
-			}
-			if match {
+			if p.numberComesAfterPrefix(elementCategoryVolumePrefix, tkn) {
 				continue
 			}
-			match, err = p.numberComesAfterPrefix(elementCategoryAnimeSeasonPrefix, tkn)
-			if err != nil {
-				return false, err
-			}
-			if match {
+			if p.numberComesAfterPrefix(elementCategoryAnimeSeasonPrefix, tkn) {
 				continue
 			}
 		} else {
-			match, err := p.numberComesBeforeAnotherNumber(tkn)
-			if err != nil {
-				return false, err
-			}
-			if match {
-				return true, nil
+			if p.numberComesBeforeAnotherNumber(tkn) {
+				return true
 			}
 		}
-		match, err := p.matchEpisodePattern(tkn.Content, tkn)
-		if err != nil {
-			return false, err
-		}
-		if match {
-			return true, nil
+		if p.matchEpisodePattern(tkn.Content, tkn) {
+			return true
 		}
 	}
-	return false, nil
+	return false
 }
 
-func (p *parser) numberComesAfterPrefix(cat elementCategory, tkn *token) (bool, error) {
+func (p *parser) numberComesAfterPrefix(cat elementCategory, tkn *token) bool {
 	numberBegin := findNumberInString(tkn.Content)
 	if numberBegin == -1 {
-		return false, nil
+		return false
 	}
 	prefix := tkn.Content[:numberBegin]
 
@@ -101,41 +75,31 @@ func (p *parser) numberComesAfterPrefix(cat elementCategory, tkn *token) (bool, 
 	if found {
 		number := tkn.Content[numberBegin:]
 		if cat == elementCategoryEpisodePrefix {
-			match, err := p.matchEpisodePattern(number, tkn)
-			if err != nil {
-				return false, err
+			if p.matchEpisodePattern(number, tkn) {
+				return true
 			}
-			if match {
-				return true, nil
-			}
-			return p.setEpisodeNumber(number, tkn, false), nil
+			return p.setEpisodeNumber(number, tkn, false)
 		}
 		if cat == elementCategoryVolumePrefix {
 			if p.matchVolumePattern(number, tkn) {
-				return true, nil
+				return true
 			}
-			return p.setVolumeNumber(number, tkn, false), nil
+			return p.setVolumeNumber(number, tkn, false)
 		}
 		if cat == elementCategoryAnimeSeasonPrefix {
-			return p.setSeasonNumber(number, tkn), nil
+			return p.setSeasonNumber(number, tkn)
 		}
 	}
-	return false, nil
+	return false
 }
 
-func (p *parser) numberComesBeforeAnotherNumber(tkn *token) (bool, error) {
-	separatorToken, found, err := p.tokenizer.tokens.findNext(*tkn, tokenFlagsNotDelimiter)
-	if err != nil {
-		return false, err
-	}
+func (p *parser) numberComesBeforeAnotherNumber(tkn *token) bool {
+	separatorToken, found := p.tokenizer.tokens.findNext(*tkn, tokenFlagsNotDelimiter)
 
 	if found {
 		separator := separatorToken.Content
 		if separator == "&" || separator == "of" {
-			otherToken, found, err := p.tokenizer.tokens.findNext(*separatorToken, tokenFlagsNotDelimiter)
-			if err != nil {
-				return false, err
-			}
+			otherToken, found := p.tokenizer.tokens.findNext(*separatorToken, tokenFlagsNotDelimiter)
 			if found && isNumeric(otherToken.Content) {
 				p.setEpisodeNumber(tkn.Content, tkn, false)
 				if separator == "&" {
@@ -143,56 +107,36 @@ func (p *parser) numberComesBeforeAnotherNumber(tkn *token) (bool, error) {
 				}
 				separatorToken.Category = tokenCategoryIdentifier
 				otherToken.Category = tokenCategoryIdentifier
-				return true, nil
+				return true
 			}
 		}
 	}
-	return false, nil
+	return false
 }
 
-func (p *parser) searchForEquivalentNumbers(tkns tokens) (bool, error) {
+func (p *parser) searchForEquivalentNumbers(tkns tokens) bool {
 	for _, tkn := range tkns {
-		iso, err := p.tokenizer.tokens.isTokenIsolated(*tkn)
-		if err != nil {
-			return false, err
-		}
-		if iso || !isValidEpisodeNumber(tkn.Content) {
-			return false, err
+		if p.tokenizer.tokens.isTokenIsolated(*tkn) || !isValidEpisodeNumber(tkn.Content) {
+			return false
 		}
 
-		nextToken, found, err := p.tokenizer.tokens.findNext(*tkn, tokenFlagsNotDelimiter)
-		if err != nil {
-			return false, err
-		}
+		nextToken, found := p.tokenizer.tokens.findNext(*tkn, tokenFlagsNotDelimiter)
 		if nextToken.empty() || nextToken.Category != tokenCategoryBracket || !found {
 			continue
 		}
-		nextToken, found, err = p.tokenizer.tokens.findNext(*nextToken, tokenFlagsEnclosed|tokenFlagsNotDelimiter)
-		if err != nil {
-			return false, err
-		}
+		nextToken, found = p.tokenizer.tokens.findNext(*nextToken, tokenFlagsEnclosed|tokenFlagsNotDelimiter)
 		if found {
 			if nextToken.Category != tokenCategoryUnknown {
 				continue
 			}
 		}
 
-		iso, err = p.tokenizer.tokens.isTokenIsolated(*nextToken)
-		if err != nil {
-			return false, err
-		}
-		if !iso || !isNumeric(nextToken.Content) || !isValidEpisodeNumber(nextToken.Content) {
+		if !p.tokenizer.tokens.isTokenIsolated(*nextToken) || !isNumeric(nextToken.Content) || !isValidEpisodeNumber(nextToken.Content) {
 			continue
 		}
 
-		i, err := strconv.Atoi(nextToken.Content)
-		if err != nil {
-			continue
-		}
-		j, err := strconv.Atoi(tkn.Content)
-		if err != nil {
-			continue
-		}
+		i, _ := strconv.Atoi(nextToken.Content)
+		j, _ := strconv.Atoi(tkn.Content)
 
 		episode := nextToken
 		altEpisode := tkn
@@ -202,54 +146,44 @@ func (p *parser) searchForEquivalentNumbers(tkns tokens) (bool, error) {
 		}
 		p.setEpisodeNumber(episode.Content, episode, false)
 		p.setAlternativeEpisodeNumber(altEpisode.Content, altEpisode)
-		return true, nil
+		return true
 	}
 
-	return false, nil
+	return false
 }
 
-func (p *parser) searchForSeparatedNumbers(tkns tokens) (bool, error) {
+func (p *parser) searchForSeparatedNumbers(tkns tokens) bool {
 	for _, tkn := range tkns {
-		previousToken, found, err := p.tokenizer.tokens.findPrevious(*tkn, tokenFlagsNotDelimiter)
-		if err != nil {
-			return false, err
-		}
+		previousToken, found := p.tokenizer.tokens.findPrevious(*tkn, tokenFlagsNotDelimiter)
 		if !found {
-			return false, nil
+			return false
 		}
 
 		if previousToken.Category == tokenCategoryUnknown && isDashCharacter(previousToken.Content) {
 			if p.setEpisodeNumber(tkn.Content, tkn, true) {
 				previousToken.Category = tokenCategoryIdentifier
-				return true, nil
+				return true
 			}
 		}
 	}
-	return false, nil
+	return false
 }
 
-func (p *parser) searchForIsolatedNumbersTokens(tkns tokens) (bool, error) {
+func (p *parser) searchForIsolatedNumbersTokens(tkns tokens) bool {
 	for _, tkn := range tkns {
-		iso, err := p.tokenizer.tokens.isTokenIsolated(*tkn)
-		if err != nil {
-			return false, err
-		}
-		if !tkn.Enclosed || !iso {
+		if !tkn.Enclosed || !p.tokenizer.tokens.isTokenIsolated(*tkn) {
 			continue
 		}
 		if p.setEpisodeNumber(tkn.Content, tkn, true) {
-			return true, nil
+			return true
 		}
 	}
-	return false, nil
+	return false
 }
 
-func (p *parser) searchForLastNumber(tkns tokens) (bool, error) {
+func (p *parser) searchForLastNumber(tkns tokens) bool {
 	for _, tkn := range tkns {
-		tokenIndex, err := p.tokenizer.tokens.getIndex(*tkn, 0)
-		if err != nil {
-			return false, err
-		}
+		tokenIndex := p.tokenizer.tokens.getIndex(*tkn, 0)
 
 		if tokenIndex == 0 {
 			continue
@@ -271,20 +205,17 @@ func (p *parser) searchForLastNumber(tkns tokens) (bool, error) {
 			continue
 		}
 
-		previousToken, _, err := p.tokenizer.tokens.findPrevious(*tkn, tokenFlagsNotDelimiter)
-		if err != nil {
-			return false, err
-		}
+		previousToken, _ := p.tokenizer.tokens.findPrevious(*tkn, tokenFlagsNotDelimiter)
 		if previousToken.Category == tokenCategoryUnknown {
 			if strings.ToUpper(previousToken.Content) == "MOVIE" || strings.ToUpper(previousToken.Content) == "PART" {
 				continue
 			}
 		}
 		if p.setEpisodeNumber(tkn.Content, tkn, true) {
-			return true, nil
+			return true
 		}
 	}
-	return false, nil
+	return false
 }
 
 func (p *parser) setSeasonNumber(number string, tkn *token) bool {
@@ -310,7 +241,7 @@ func (p *parser) setEpisodeNumber(number string, tkn *token, validate bool) bool
 	cat := elementCategoryEpisodeNumber
 
 	if p.tokenizer.elements.getCheckAltNumber() {
-		episodeNumber := string(p.tokenizer.elements.get(elementCategoryEpisodeNumber)[0])
+		episodeNumber := p.tokenizer.elements.get(elementCategoryEpisodeNumber)[0]
 		if stringToInt(number) > stringToInt(episodeNumber) {
 			cat = elementCategoryEpisodeNumberAlt
 		} else if stringToInt(number) < stringToInt(episodeNumber) {
@@ -325,25 +256,23 @@ func (p *parser) setEpisodeNumber(number string, tkn *token, validate bool) bool
 	return true
 }
 
-func (p *parser) setAlternativeEpisodeNumber(number string, tkn *token) bool {
+func (p *parser) setAlternativeEpisodeNumber(number string, tkn *token) {
 	p.tokenizer.elements.insert(elementCategoryEpisodeNumberAlt, number)
 	tkn.Category = tokenCategoryIdentifier
-
-	return true
 }
 
-func (p *parser) matchEpisodePattern(w string, tkn *token) (bool, error) {
+func (p *parser) matchEpisodePattern(w string, tkn *token) bool {
 	var numericFront bool
 	var numericBack bool
 
 	if isNumeric(w) {
-		return false, nil
+		return false
 	}
 
 	w = strings.Trim(w, " -")
 
 	if len(w) == 0 {
-		return false, nil
+		return false
 	}
 
 	if isNumeric(string(w[0])) {
@@ -355,50 +284,46 @@ func (p *parser) matchEpisodePattern(w string, tkn *token) (bool, error) {
 
 	if numericFront && numericBack {
 		if p.matchSingleEpisodePattern(w, tkn) {
-			return true, nil
+			return true
 		}
 	}
 	if numericFront && numericBack {
 		if p.matchMultiEpisodePattern(w, tkn) {
-			return true, nil
+			return true
 		}
 	}
 	if numericBack {
 		if p.matchSeasonAndEpisodePattern(w, tkn) {
-			return true, nil
+			return true
 		}
 	}
 	if !numericFront {
-		match, err := p.matchTypeAndEpisodePattern(w, tkn)
-		if err != nil {
-			return false, err
-		}
-		if match {
-			return true, nil
+		if p.matchTypeAndEpisodePattern(w, tkn) {
+			return true
 		}
 	}
 	if numericFront && numericBack {
 		if p.matchFractionalEpisodePattern(w, tkn) {
-			return true, nil
+			return true
 		}
 	}
 	if numericFront && !numericBack {
 		if p.matchPartialEpisodePattern(w, tkn) {
-			return true, nil
+			return true
 		}
 	}
 	if numericBack {
 		if p.matchNumberSignPattern(w, tkn) {
-			return true, nil
+			return true
 		}
 	}
 	if numericFront || strings.IndexRune(w, '\u7B2C') == 0 {
 		if p.matchJapaneseCounterPattern(w, tkn) {
-			return true, nil
+			return true
 		}
 	}
 
-	return false, nil
+	return false
 }
 
 func (p *parser) matchSingleEpisodePattern(w string, tkn *token) bool {
@@ -430,14 +355,8 @@ func (p *parser) matchMultiEpisodePattern(w string, tkn *token) bool {
 	if strings.Index(w, match[0]) != 0 {
 		return false
 	}
-	lowerBound, err := strconv.Atoi(match[1])
-	if err != nil {
-		return false
-	}
-	upperBound, err := strconv.Atoi(match[3])
-	if err != nil {
-		return false
-	}
+	lowerBound, _ := strconv.Atoi(match[1])
+	upperBound, _ := strconv.Atoi(match[3])
 	if lowerBound < upperBound {
 		if p.setEpisodeNumber(match[1], tkn, true) {
 			p.setEpisodeNumber(match[3], tkn, false)
@@ -475,10 +394,10 @@ func (p *parser) matchSeasonAndEpisodePattern(w string, tkn *token) bool {
 	return true
 }
 
-func (p *parser) matchTypeAndEpisodePattern(w string, tkn *token) (bool, error) {
+func (p *parser) matchTypeAndEpisodePattern(w string, tkn *token) bool {
 	numberBegin := findNumberInString(w)
 	if numberBegin == -1 {
-		return false, nil
+		return false
 	}
 	prefix := w[:numberBegin]
 
@@ -486,36 +405,22 @@ func (p *parser) matchTypeAndEpisodePattern(w string, tkn *token) (bool, error) 
 	if found {
 		p.tokenizer.elements.insert(elementCategoryAnimeType, prefix)
 		number := w[numberBegin:]
-		match, err := p.matchEpisodePattern(number, tkn)
-		set := p.setEpisodeNumber(number, tkn, true)
-		if err != nil {
-			return false, err
-		}
-		if match || set {
-			tokenIndex, err := p.tokenizer.tokens.getIndex(*tkn, 0)
-			if err != nil {
-				return false, err
-			}
-			if tokenIndex == -1 {
-				return false, nil
-			}
+		if p.matchEpisodePattern(number, tkn) || p.setEpisodeNumber(number, tkn, true) {
+			tokenIndex := p.tokenizer.tokens.getIndex(*tkn, 0)
 			tkn.Content = number
 			targetCategory := tokenCategoryIdentifier
-			if !kd.Options.Identifiable {
+			if !kd.options.identifiable {
 				targetCategory = tokenCategoryUnknown
 			}
-			err = p.tokenizer.tokens.insert(tokenIndex, token{
+			p.tokenizer.tokens.insert(tokenIndex, token{
 				Category: targetCategory,
 				Content:  prefix,
 				Enclosed: tkn.Enclosed,
 			})
-			if err != nil {
-				return false, err
-			}
 		}
-		return true, nil
+		return true
 	}
-	return false, nil
+	return false
 }
 
 func (p *parser) matchFractionalEpisodePattern(w string, tkn *token) bool {
@@ -563,16 +468,14 @@ func (p *parser) matchNumberSignPattern(w string, tkn *token) bool {
 	if strings.Index(w, match[0]) != 0 {
 		return false
 	}
-	if p.setEpisodeNumber(match[1], tkn, true) {
-		if len(match[2]) > 0 {
-			p.setEpisodeNumber(match[2], tkn, true)
-		}
-		if len(match[3]) > 0 {
-			p.tokenizer.elements.insert(elementCategoryReleaseVersion, match[3])
-		}
-		return true
+	p.setEpisodeNumber(match[1], tkn, false)
+	if len(match[2]) > 0 {
+		p.setEpisodeNumber(match[2], tkn, true)
 	}
-	return false
+	if len(match[3]) > 0 {
+		p.tokenizer.elements.insert(elementCategoryReleaseVersion, match[3])
+	}
+	return true
 }
 
 func (p *parser) matchJapaneseCounterPattern(w string, tkn *token) bool {
@@ -586,11 +489,8 @@ func (p *parser) matchJapaneseCounterPattern(w string, tkn *token) bool {
 	if match == nil {
 		return false
 	}
-	if p.setEpisodeNumber(match[1], tkn, false) {
-		return true
-	}
-
-	return false
+	p.setEpisodeNumber(match[1], tkn, false)
+	return true
 }
 
 func (p *parser) matchVolumePattern(w string, tkn *token) bool {
@@ -668,14 +568,8 @@ func (p *parser) matchMultiVolumePattern(w string, tkn *token) bool {
 	if strings.Index(w, match[0]) != 0 {
 		return false
 	}
-	lowerBound, err := strconv.Atoi(match[1])
-	if err != nil {
-		return false
-	}
-	upperBound, err := strconv.Atoi(match[2])
-	if err != nil {
-		return false
-	}
+	lowerBound, _ := strconv.Atoi(match[1])
+	upperBound, _ := strconv.Atoi(match[2])
 	if lowerBound < upperBound {
 		if p.setVolumeNumber(match[1], tkn, true) {
 			p.setVolumeNumber(match[2], tkn, false)

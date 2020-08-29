@@ -48,18 +48,6 @@ type tokenizer struct {
 	elements       *Elements
 }
 
-func (t *tokenizer) tokenize() error {
-	err := t.tokenizeByBrackets()
-	if err != nil {
-		return err
-	}
-	if t.tokens.empty() {
-		return traceError(tokensEmptyErr)
-	}
-
-	return nil
-}
-
 func (t *tokenizer) addToken(cat int, content string, enclosed bool) {
 	t.tokens.appendToken(token{
 		Category: cat,
@@ -68,7 +56,7 @@ func (t *tokenizer) addToken(cat int, content string, enclosed bool) {
 	})
 }
 
-func (t *tokenizer) tokenizeByBrackets() error {
+func (t *tokenizer) tokenize() {
 	brackets := [][]rune{
 		{'(', ')'},
 		{'[', ']'},
@@ -92,15 +80,9 @@ func (t *tokenizer) tokenizeByBrackets() error {
 
 		if bracketIndex != 0 {
 			if bracketIndex != -1 {
-				err := t.tokenizeByPreidentified(text[:bracketIndex], isBracketOpen)
-				if err != nil {
-					return err
-				}
+				t.tokenizeByPreidentified(text[:bracketIndex], isBracketOpen)
 			} else {
-				err := t.tokenizeByPreidentified(text, isBracketOpen)
-				if err != nil {
-					return err
-				}
+				t.tokenizeByPreidentified(text, isBracketOpen)
 			}
 		}
 
@@ -112,21 +94,17 @@ func (t *tokenizer) tokenizeByBrackets() error {
 			text = ""
 		}
 	}
-	return nil
 }
 
-func (t *tokenizer) tokenizeByPreidentified(filename string, enclosed bool) error {
+func (t *tokenizer) tokenizeByPreidentified(filename string, enclosed bool) {
 	preIdentifiedtokens := t.keywordManager.peek(filename, t.elements)
 
 	lastTokenEndPos := 0
 	for _, preIdentified := range preIdentifiedtokens {
-		tknBeginPos := preIdentified.BeginPos
-		tknEndPos := preIdentified.EndPos
-		if lastTokenEndPos != tknBeginPos {
-			err := t.tokenizeByDelimiters(filename[lastTokenEndPos:tknBeginPos], enclosed)
-			if err != nil {
-				return err
-			}
+		tknBeginPos := preIdentified.beginPos
+		tknEndPos := preIdentified.endPos
+		if lastTokenEndPos != tknBeginPos && tknBeginPos <= len(filename) {
+			t.tokenizeByDelimiters(filename[lastTokenEndPos:tknBeginPos], enclosed)
 		}
 		if tknEndPos <= len(filename) {
 			t.addToken(tokenCategoryIdentifier, filename[tknBeginPos:tknEndPos], enclosed)
@@ -134,15 +112,11 @@ func (t *tokenizer) tokenizeByPreidentified(filename string, enclosed bool) erro
 		}
 	}
 	if lastTokenEndPos != len(filename) {
-		err := t.tokenizeByDelimiters(filename[lastTokenEndPos:], enclosed)
-		if err != nil {
-			return err
-		}
+		t.tokenizeByDelimiters(filename[lastTokenEndPos:], enclosed)
 	}
-	return nil
 }
 
-func (t *tokenizer) tokenizeByDelimiters(filename string, enclosed bool) error {
+func (t *tokenizer) tokenizeByDelimiters(filename string, enclosed bool) {
 	var delimiters string
 	var splitText []string
 	for _, delimiter := range t.options.AllowedDelimiters {
@@ -161,68 +135,40 @@ func (t *tokenizer) tokenizeByDelimiters(filename string, enclosed bool) error {
 			}
 		}
 	}
-	err := t.validateDelimiterTokens()
-	return err
+	t.validateDelimitertokens()
 }
 
-func (t *tokenizer) validateDelimiterTokens() error {
+func (t *tokenizer) validateDelimitertokens() {
 	for _, tkn := range *t.tokens {
 		if tkn.Category != tokenCategoryDelimiter {
 			continue
 		}
 		delimiter := tkn.Content
-		prevToken, _, err := t.findPreviousValidToken(tkn)
-		if err != nil {
-			return err
-		}
-		nextToken, _, err := t.findNextValidToken(tkn)
-		if err != nil {
-			return err
-		}
+		prevToken, _ := t.findPreviousValidToken(tkn)
+		nextToken, _ := t.findNextValidToken(tkn)
 
 		if delimiter != " " && delimiter != "_" {
 			if t.isSingleCharacterToken((*prevToken)) {
 				nestedNextToken := *nextToken
-				prevToken, err = t.appendTokenTo(tkn, prevToken)
-				if err != nil {
-					return err
-				}
+				prevToken = t.appendTokenTo(tkn, prevToken)
 				for t.isUnknownToken(nestedNextToken) {
-					prevToken, err = t.appendTokenTo(&nestedNextToken, prevToken)
-					if err != nil {
-						return err
-					}
+					prevToken = t.appendTokenTo(&nestedNextToken, prevToken)
 					if nestedNextToken.Content == nextToken.Content {
 						nextToken.Category = tokenCategoryInvalid
 					}
-					holder, _, err := t.findNextValidToken(&nestedNextToken)
-					if err != nil {
-						return err
-					}
+					holder, _ := t.findNextValidToken(&nestedNextToken)
 					nestedNextToken = *holder
 					if t.isDelimiterToken(nestedNextToken) && nestedNextToken.Content == delimiter {
-						prevToken, err = t.appendTokenTo(&nestedNextToken, prevToken)
-						if err != nil {
-							return err
-						}
-						holder, _, err = t.findNextValidToken(&nestedNextToken)
-						if err != nil {
-							return err
-						}
+						prevToken = t.appendTokenTo(&nestedNextToken, prevToken)
+						holder, _ = t.findNextValidToken(&nestedNextToken)
 						nestedNextToken = *holder
 					}
 					continue
 				}
 			}
 			if t.isSingleCharacterToken((*nextToken)) {
-				prevToken, err = t.appendTokenTo(tkn, prevToken)
-				if err != nil {
-					return err
-				}
-				_, err = t.appendTokenTo(nextToken, prevToken)
-				if err != nil {
-					return err
-				}
+				prevToken = t.appendTokenTo(tkn, prevToken)
+				t.appendTokenTo(nextToken, prevToken)
 				continue
 			}
 		}
@@ -231,10 +177,7 @@ func (t *tokenizer) validateDelimiterTokens() error {
 			nextDelimiter := nextToken.Content
 			if delimiter != nextDelimiter && delimiter != "," {
 				if nextDelimiter == " " || nextDelimiter == "_" {
-					prevToken, err = t.appendTokenTo(tkn, prevToken)
-					if err != nil {
-						return err
-					}
+					prevToken = t.appendTokenTo(tkn, prevToken)
 				}
 			}
 		} else if t.isDelimiterToken((*prevToken)) && t.isDelimiterToken((*nextToken)) {
@@ -247,14 +190,8 @@ func (t *tokenizer) validateDelimiterTokens() error {
 		if delimiter == "&" || delimiter == "+" {
 			if t.isUnknownToken((*prevToken)) && t.isUnknownToken((*nextToken)) {
 				if isNumeric(prevToken.Content) && isNumeric(nextToken.Content) {
-					prevToken, err = t.appendTokenTo(tkn, prevToken)
-					if err != nil {
-						return err
-					}
-					_, err = t.appendTokenTo(nextToken, prevToken)
-					if err != nil {
-						return err
-					}
+					prevToken = t.appendTokenTo(tkn, prevToken)
+					t.appendTokenTo(nextToken, prevToken)
 				}
 			}
 		}
@@ -266,14 +203,13 @@ func (t *tokenizer) validateDelimiterTokens() error {
 		}
 	}
 	t.tokens.update(newTkns)
-	return nil
 }
 
-func (t *tokenizer) findPreviousValidToken(tkn *token) (*token, bool, error) {
+func (t *tokenizer) findPreviousValidToken(tkn *token) (*token, bool) {
 	return t.tokens.findPrevious(*tkn, tokenFlagsValid)
 }
 
-func (t *tokenizer) findNextValidToken(tkn *token) (*token, bool, error) {
+func (t *tokenizer) findNextValidToken(tkn *token) (*token, bool) {
 	return t.tokens.findNext(*tkn, tokenFlagsValid)
 }
 
@@ -298,21 +234,15 @@ func (t *tokenizer) isSingleCharacterToken(tkn token) bool {
 	return false
 }
 
-func (t *tokenizer) appendTokenTo(tkn, appendTo *token) (*token, error) {
-	appendToIndex, err := t.tokens.getIndex(*appendTo, 0)
-	if err != nil {
-		return &token{}, err
-	}
+func (t *tokenizer) appendTokenTo(tkn, appendTo *token) *token {
+	appendToIndex := t.tokens.getIndex(*appendTo, 0)
 	appendToSrc, _ := t.tokens.get(appendToIndex)
 	appendToSrc.Content += tkn.Content
-	srcTknIndex, err := t.tokens.getIndex(*tkn, appendToIndex)
-	if err != nil {
-		return &token{}, err
-	}
+	srcTknIndex := t.tokens.getIndex(*tkn, appendToIndex)
 	srcTkn, _ := t.tokens.get(srcTknIndex)
 	srcTkn.Category = tokenCategoryInvalid
 
-	return appendToSrc, nil
+	return appendToSrc
 }
 
 func findFirstBracket(filename string, brackets [][]rune) (int, rune) {
