@@ -1,4 +1,5 @@
 # Anitogo [![License](https://img.shields.io/github/license/nssteinbrenner/anitogo)](https://www.mozilla.org/en-US/MPL/2.0/) [![Godoc](https://godoc.org/github.com/animenotifier/shoboi?status.svg)](https://godoc.org/github.com/nssteinbrenner/anitogo) [![Go Report Card](https://goreportcard.com/badge/github.com/nssteinbrenner/anitogo)](https://goreportcard.com/report/github.com/nssteinbrenner/anitogo) [![Build Status](https://cloud.drone.io/api/badges/nssteinbrenner/anitogo/status.svg)](https://cloud.drone.io/nssteinbrenner/anitogo) [![codecov](https://codecov.io/gh/nssteinbrenner/anitogo/branch/master/graph/badge.svg)](https://codecov.io/gh/nssteinbrenner/anitogo)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnssteinbrenner%2Fanitogo.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fnssteinbrenner%2Fanitogo?ref=badge_shield)
 
 Anitogo is a Golang library for parsing anime video filenames. It is based off of [Anitomy](https://github.com/erengy/anitomy) and [Anitopy](https://github.com/igorcmoura/anitopy).
 
@@ -124,3 +125,7 @@ The Parse function receives the filename and an Options struct. The default opti
         ParseFileExtension: true, // Parse the file extension and include it in the elements
         ParseReleaseGroup:  true, // Parse the release group and include it in the elements
     }
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fnssteinbrenner%2Fanitogo.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fnssteinbrenner%2Fanitogo?ref=badge_large)
