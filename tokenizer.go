@@ -11,7 +11,7 @@ import (
 //
 // Default options have been provided under a variable named "DefaultOptions".
 type Options struct {
-	// Default: " _.&+,|"
+	// DefaultOptions value: " _.&+,|"
 	// Each character in this string will be evaluated as a delimiter during parsing.
 	// The defaults are fairly sane, but in some cases you may want to change them.
 	// For example in the following filename: DRAMAtical Murder Episode 1 - Data_01_Login
@@ -19,23 +19,23 @@ type Options struct {
 	// not be desired behavior.
 	AllowedDelimiters string
 
-	// Default: []string{}
+	// DefaultOptions value: []string{}
 	// These strings will be removed from the filename.
 	IgnoredStrings []string
 
-	// Default: true
+	// DefaultOptions value: true
 	// Determines if the episode number will be parsed into the Elements struct.
 	ParseEpisodeNumber bool
 
-	// Default: true
+	// DefaultOptions value: true
 	// Determines if the episode title will be parsed into the Elements struct.
 	ParseEpisodeTitle bool
 
-	// Default: true
+	// DefaultOptions value: true
 	// Determines if the file extension will be parsed into the Elements struct.
 	ParseFileExtension bool
 
-	// Default: true
+	// DefaultOptions value: true
 	// Determines if the release group will be parsed into the Elements struct.
 	ParseReleaseGroup bool
 }

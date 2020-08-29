@@ -14,7 +14,7 @@ type Elements struct {
 	// "Boku No Hero Academia" is the AnimeTitle.
 	AnimeTitle string `json:"anime_title,omitempty"`
 
-	// Type specified in the anime file, e.g ED, OP, Movie, etc.
+	// Slice of strings representing the types specified in the anime file, e.g ED, OP, Movie, etc.
 	AnimeType []string `json:"anime_type,omitempty"`
 
 	// Year the anime was released.

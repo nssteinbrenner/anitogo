@@ -178,11 +178,11 @@ func TestTokensGetIndex(t *testing.T) {
 	tkns.appendToken(tkn)
 	i := tkns.getIndex(tkn, -1)
 	if i != -1 {
-		t.Errorf("expected error -1, got %d", i)
+		t.Errorf("expected -1, got %d", i)
 	}
 	i = tkns.getIndex(tkn, 100)
 	if i != -1 {
-		t.Errorf("expected error -1, got %d", i)
+		t.Errorf("expected -1, got %d", i)
 	}
 	tkn1 := (*tkns)[0]
 	i = tkns.getIndex(*tkn1, 0)
