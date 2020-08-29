@@ -1,0 +1,28 @@
+kind: pipeline
+name: default
+
+steps:
+- name: get
+  image: golang
+  volumes:
+  - name: deps
+    path: /go
+  commands:
+  - go get -t -v ./...
+
+- name: test
+  image: golang
+  volumes:
+  - name: deps
+    path: /go
+  commands:
+  - TEST_DATA_PATH=./test/data.json go test -v -race -covermode=atomic -coverprofile=coverage.txt
+
+- name: codecov
+  image: golang
+  commands:
+  - curl -s https://codecov.io/bash | bash
+
+volumes:
+- name: deps
+  temp: {}
