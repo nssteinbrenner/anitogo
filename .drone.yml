@@ -20,6 +20,9 @@ steps:
 
 - name: codecov
   image: golang
+  environment:
+    CODECOV_TOKEN:
+      from_secret: codecov_token
   commands:
   - curl -s https://codecov.io/bash | bash
 
