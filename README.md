@@ -1,4 +1,5 @@
-# Anitogo [![License](https://img.shields.io/github/license/nssteinbrenner/anitogo)](https://www.mozilla.org/en-US/MPL/2.0/) [![Godoc](https://godoc.org/github.com/animenotifier/shoboi?status.svg)](https://godoc.org/github.com/nssteinbrenner/anitogo) [![Go Report Card](https://goreportcard.com/badge/github.com/nssteinbrenner/anitogo)](https://goreportcard.com/report/github.com/nssteinbrenner/anitogo) [![Build Status](https://travis-ci.org/nssteinbrenner/anitogo.svg?branch=master)](https://travis-ci.org/nssteinbrenner/anitogo) [![Coverage Status](https://coveralls.io/repos/github/nssteinbrenner/anitogo/badge.svg?branch=master)](https://coveralls.io/github/nssteinbrenner/anitogo?branch=master)
+# Anitogo [![License](https://img.shields.io/github/license/nssteinbrenner/anitogo)](https://www.mozilla.org/en-US/MPL/2.0/) [![Godoc](https://img.shields.io/static/v1?label=godoc&message=reference&color=blue)](https://pkg.go.dev/github.com/nssteinbrenner/anitogo) [![Go Report Card](https://goreportcard.com/badge/github.com/nssteinbrenner/anitogo)](https://goreportcard.com/report/github.com/nssteinbrenner/anitogo) [![Build Status](https://cloud.drone.io/api/badges/nssteinbrenner/anitogo/status.svg)](https://cloud.drone.io/nssteinbrenner/anitogo) [![codecov](https://codecov.io/gh/nssteinbrenner/anitogo/branch/master/graph/badge.svg)](https://codecov.io/gh/nssteinbrenner/anitogo)
+
 Anitogo is a Golang library for parsing anime video filenames. It is based off of [Anitomy](https://github.com/erengy/anitomy) and [Anitopy](https://github.com/igorcmoura/anitopy).
 
 ## Example
@@ -31,10 +32,7 @@ The following example code:
     )
 
     func main() {
-        parsed, err := anitogo.Parse("[Nubles] Space Battleship Yamato 2199 (2012) episode 18 (720p 10 bit AAC)[1F56D642]", anitogo.DefaultOptions)
-        if err != nil {
-            fmt.Println(err)
-        }
+        parsed := anitogo.Parse("[Nubles] Space Battleship Yamato 2199 (2012) episode 18 (720p 10 bit AAC)[1F56D642]", anitogo.DefaultOptions)
         jsonParsed, err := json.MarshalIndent(parsed, "", "    ")
         if err != nil {
             fmt.Println(err)
@@ -72,13 +70,13 @@ Will output:
     Release Group: Nubles
     File Checksum: 1F56D642
 
-The Parse function returns an element struct and an error. The full definition of the struct is here:
+The Parse function returns a pointer to an Elements struct. The full definition of the struct is here:
 
     type elements struct {
         AnimeSeason         []string `json:"anime_season,omitempty"`
         AnimeSeasonPrefix   []string `json:"anime_season_prefix,omitempty"`
         AnimeTitle          string   `json:"anime_title,omitempty"`
-        AnimeType           string   `json:"anime_type,omitempty"`
+        AnimeType           []string  `json:"anime_type,omitempty"`
         AnimeYear           string   `json:"anime_year,omitempty"`
         AudioTerm           []string `json:"audio_term,omitempty"`
         DeviceCompatibility []string `json:"device_compatibility,omitempty"`
@@ -101,12 +99,15 @@ The Parse function returns an element struct and an error. The full definition o
         VolumeNumber        []string `json:"volume_number,omitempty"`
         VolumePrefix        []string `json:"volume_prefix,omitempty"`
         Unknown             []string `json:"unknown,omitempty"`
-        CheckAltNumber      bool     `json:"-"`
+        checkAltNumber      bool
     }
+
+Sample results encoded in JSON can be seen in the tests/data.json file.
+
 ## Installation
 Get the package:
 
-    go get github.com/nssteinbrenner/anitogo
+    go get -u github.com/nssteinbrenner/anitogo
 
 Then, import it in your code:
 

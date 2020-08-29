@@ -7,7 +7,7 @@ import (
 
 const maxExtensionLength = 4
 
-// DefaultOptions are sane defaults for the Options struct to be passed to the Parse function.
+// DefaultOptions is a variable configured with the recommended defaults for the Options struct to be passed to the Parse function.
 //
 // Custom options can be specified by creating a new Options struct and passing it to the Parse function.
 var DefaultOptions = Options{
@@ -19,9 +19,7 @@ var DefaultOptions = Options{
 	ParseReleaseGroup:  true,
 }
 
-// Parse builds and returns a pointer to an Elements struct and an error by parsing a filename with the specified options.
-//
-// If an error is encountered during the process, Parse will return an empty pointer to an Elements struct.
+// Parse returns a pointer to an Elements struct created by parsing a filename with the specified options.
 //
 // Parsing behavior can be customized in the passed Options struct.
 func Parse(filename string, options Options) *Elements {
