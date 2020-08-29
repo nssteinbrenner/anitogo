@@ -57,7 +57,9 @@
   },
   {
     "anime_title": "Special A",
-    "anime_type": "Special",
+    "anime_type": [
+      "Special"
+    ],
     "episode_number": [
       "01"
     ],
@@ -106,7 +108,9 @@
   },
   {
     "anime_title": "Toradora ED",
-    "anime_type": "ED",
+    "anime_type": [
+      "ED"
+    ],
     "audio_term": [
       "AAC"
     ],
@@ -207,7 +211,9 @@
   },
   {
     "anime_title": "One Piece Movie 9",
-    "anime_type": "Movie",
+    "anime_type": [
+      "Movie"
+    ],
     "file_extension": "avi",
     "file_name": "[KAF-TEAM]_One_Piece_Movie_9_vostfr_HD.avi",
     "language": [
@@ -311,7 +317,9 @@
   },
   {
     "anime_title": "Code Geass R2 TV",
-    "anime_type": "TV",
+    "anime_type": [
+      "TV"
+    ],
     "episode_number": [
       "20"
     ],
@@ -443,7 +451,9 @@
   },
   {
     "anime_title": "AIKa ZERO OVA",
-    "anime_type": "OVA",
+    "anime_type": [
+      "OVA"
+    ],
     "audio_term": [
       "Flac"
     ],
@@ -464,7 +474,9 @@
   },
   {
     "anime_title": "R.O.D the TV",
-    "anime_type": "TV",
+    "anime_type": [
+      "TV"
+    ],
     "episode_number": [
       "01"
     ],
@@ -857,7 +869,9 @@
   },
   {
     "anime_title": "Kore wa Zombie desu ka",
-    "anime_type": "TV",
+    "anime_type": [
+      "TV"
+    ],
     "audio_term": [
       "AAC"
     ],
@@ -1009,7 +1023,9 @@
   },
   {
     "anime_title": "Magical☆Star Kanon 100% OVA",
-    "anime_type": "OVA",
+    "anime_type": [
+      "OVA"
+    ],
     "file_checksum": "E9F43685",
     "file_extension": "mkv",
     "file_name": "[CMS] Magical☆Star Kanon 100% OVA[DVD][E9F43685].mkv",
@@ -1051,7 +1067,9 @@
   },
   {
     "anime_title": "Kotoura-san - Special Short Anime 'Haruka's Room'",
-    "anime_type": "Special",
+    "anime_type": [
+      "Special"
+    ],
     "audio_term": [
       "AAC"
     ],
@@ -1333,7 +1351,9 @@
   },
   {
     "anime_title": "Evangelion Shin Gekijouban Q",
-    "anime_type": "Gekijouban",
+    "anime_type": [
+      "Gekijouban"
+    ],
     "audio_term": [
       "FLACx2",
       "5.1ch"
@@ -1350,7 +1370,9 @@
   },
   {
     "anime_title": "Evangelion The New Movie Q",
-    "anime_type": "Movie",
+    "anime_type": [
+      "Movie"
+    ],
     "audio_term": [
       "AACx2"
     ],
@@ -1402,7 +1424,9 @@
   },
   {
     "anime_title": "Queen's Blade Utsukushiki Toushi-tachi - OVA",
-    "anime_type": "OVA",
+    "anime_type": [
+      "OVA"
+    ],
     "audio_term": [
       "AAC"
     ],
@@ -1466,7 +1490,9 @@
   },
   {
     "anime_title": "Rozen Maiden",
-    "anime_type": "PV",
+    "anime_type": [
+      "PV"
+    ],
     "episode_number": [
       "3"
     ],
@@ -1647,7 +1673,9 @@
   },
   {
     "anime_title": "Bakemonogatari OP",
-    "anime_type": "OP",
+    "anime_type": [
+      "OP"
+    ],
     "audio_term": [
       "FLAC"
     ],
@@ -1761,7 +1789,9 @@
   },
   {
     "anime_title": "Fate Zero OVA",
-    "anime_type": "OVA",
+    "anime_type": [
+      "OVA"
+    ],
     "audio_term": [
       "FLAC"
     ],
@@ -1898,7 +1928,9 @@
   },
   {
     "anime_title": "Yosuga no Sora",
-    "anime_type": "Preview",
+    "anime_type": [
+      "Preview"
+    ],
     "audio_term": [
       "FLAC"
     ],
@@ -2053,7 +2085,9 @@
   },
   {
     "anime_title": "Seirei Tsukai no Blade Dance - SP",
-    "anime_type": "SP",
+    "anime_type": [
+      "SP"
+    ],
     "audio_term": [
       "AAC"
     ],
@@ -2150,7 +2184,10 @@
   },
   {
     "anime_title": "Love Live! The School Idol Movie - PV",
-    "anime_type": "PV",
+    "anime_type": [
+      "Movie",
+      "PV"
+    ],
     "file_checksum": "D1A15D2C",
     "file_extension": "mkv",
     "file_name": "[FFF] Love Live! The School Idol Movie - PV [D1A15D2C].mkv",
@@ -2158,7 +2195,9 @@
   },
   {
     "anime_title": "Tamayura ~graduation photo~ Movie Part 1",
-    "anime_type": "Movie",
+    "anime_type": [
+      "Movie"
+    ],
     "file_checksum": "98965607",
     "file_extension": "mkv",
     "file_name": "[Nishi-Taku] Tamayura ~graduation photo~ Movie Part 1 [BD][720p][98965607].mkv",
@@ -2186,7 +2225,9 @@
   },
   {
     "anime_title": "Crayon Shin-Chan Movie 2 The Secret of Buri Buri Kingdom",
-    "anime_type": "Movie",
+    "anime_type": [
+      "Movie"
+    ],
     "anime_year": "1994",
     "audio_term": [
       "AC3"
@@ -2315,7 +2356,9 @@
   },
   {
     "anime_title": "Ushio to Tora (TV)",
-    "anime_type": "TV",
+    "anime_type": [
+      "TV"
+    ],
     "episode_number": [
       "02"
     ],

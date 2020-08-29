@@ -66,6 +66,11 @@ func TestAnitogoParse(t *testing.T) {
 				Expected: v,
 				Got:      *ret,
 			})
+		} else if !equal(v.AnimeType, ret.AnimeType) {
+			notMatched = append(notMatched, failedParse{
+				Expected: v,
+				Got:      *ret,
+			})
 		} else if !equal(v.AudioTerm, ret.AudioTerm) {
 			notMatched = append(notMatched, failedParse{
 				Expected: v,
