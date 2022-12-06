@@ -382,6 +382,9 @@ func (p *parser) matchSeasonAndEpisodePattern(w string, tkn *token) bool {
 	if strings.Index(w, match[0]) != 0 {
 		return false
 	}
+	if match[1] == "0" {
+		return false
+	}
 
 	p.tokenizer.elements.insert(elementCategoryAnimeSeason, match[1])
 	if len(match[2]) > 0 {
