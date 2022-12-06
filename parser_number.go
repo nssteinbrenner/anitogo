@@ -373,7 +373,7 @@ func (p *parser) matchMultiEpisodePattern(w string, tkn *token) bool {
 }
 
 func (p *parser) matchSeasonAndEpisodePattern(w string, tkn *token) bool {
-	pattern := "(?i)S?(\\d{1,2})(?:-S?(\\d{1,2}))?(?:x|[ ._-x]?E)(\\d{1,4})(?:-E?(\\d{1,4}))?$"
+	pattern := "(?i)S?(\\d{1,2})(?:-S?(\\d{1,2}))?(?:x|[ ._-x]?E)(\\d{1,4})(?:-E?(\\d{1,4}))?(?:[vV](\\d))?$"
 	re := regexp.MustCompile(pattern)
 	match := re.FindStringSubmatch(w)
 	if match == nil {
@@ -390,6 +390,9 @@ func (p *parser) matchSeasonAndEpisodePattern(w string, tkn *token) bool {
 	p.setEpisodeNumber(match[3], tkn, false)
 	if len(match[4]) > 0 {
 		p.setEpisodeNumber(match[4], tkn, false)
+	}
+	if len(match[5]) > 0 {
+		p.tokenizer.elements.insert(elementCategoryReleaseVersion, match[5])
 	}
 	return true
 }
