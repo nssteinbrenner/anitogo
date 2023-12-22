@@ -8,8 +8,8 @@ import (
 )
 
 type failedParse struct {
-	Expected elements `json:"expected"`
-	Got      elements `json:"got"`
+	Expected Elements `json:"expected"`
+	Got      Elements `json:"got"`
 }
 
 func TestParse(t *testing.T) {
@@ -18,7 +18,7 @@ func TestParse(t *testing.T) {
 		t.Fatal("Missing TEST_DATA_PATH environment variable for json test data file")
 	}
 
-	e := newElementsArr()
+	e := []Elements{}
 	notMatched := []failedParse{}
 	jsonFile, err := os.Open(testDataPath)
 	if err != nil {
@@ -156,11 +156,11 @@ func TestParse(t *testing.T) {
 	}
 
 	if len(notMatched) > 0 {
-		notMatchedJson, err := json.MarshalIndent(notMatched, "", "    ")
+		notMatchedJSON, err := json.MarshalIndent(notMatched, "", "    ")
 		if err != nil {
 			t.Error(err)
 		}
-		t.Fatalf("Failed %d/%d cases\n%s", len(notMatched), len(e), notMatchedJson)
+		t.Fatalf("Failed %d/%d cases\n%s", len(notMatched), len(e), notMatchedJSON)
 	}
 }
 
@@ -169,7 +169,7 @@ func BenchmarkParse(b *testing.B) {
 	if testDataPath == "" {
 		b.Fatal("Missing TEST_DATA_PATH environment variable for json test data file")
 	}
-	e := newElementsArr()
+	e := []Elements{}
 	jsonFile, err := os.Open(testDataPath)
 	if err != nil {
 		b.Fatal(err)

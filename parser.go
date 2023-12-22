@@ -334,7 +334,6 @@ func (p *parser) searchForReleaseGroup() error {
 		p.buildElement(elementCategoryReleaseGroup, tokenBegin, tokenEnd, true)
 		return nil
 	}
-	return nil
 }
 
 func (p *parser) searchForEpisodeTitle() error {

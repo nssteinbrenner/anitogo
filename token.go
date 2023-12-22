@@ -228,14 +228,10 @@ func (t *tokens) findPrevious(tkn token, flag int) (*token, bool, error) {
 		return &token{}, false, traceError(indexTooSmallErr)
 	}
 	if tkn.empty() {
-		for _, v := range *t {
-			newTkns = append(newTkns, v)
-		}
+		newTkns = append(newTkns, *t...)
 		newTkns = reverseOrder(newTkns)
 	} else {
-		for _, v := range (*t)[:tokenIndex] {
-			newTkns = append(newTkns, v)
-		}
+		newTkns = append(newTkns, (*t)[:tokenIndex]...)
 		newTkns = reverseOrder(newTkns)
 	}
 	retTkn, found := findInTokens(newTkns, flag)
@@ -243,10 +239,11 @@ func (t *tokens) findPrevious(tkn token, flag int) (*token, bool, error) {
 }
 
 func (t *tokens) findNext(tkn token, flag int) (*token, bool, error) {
+	var newTkns tokens
+
 	if tkn.empty() {
 		return &token{}, false, nil
 	}
-	newTkns := (*t)
 	tokenIndex, err := t.getIndex(tkn, 0)
 	if err != nil {
 		return &token{}, false, err

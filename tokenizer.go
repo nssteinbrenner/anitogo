@@ -7,13 +7,37 @@ import (
 	"strings"
 )
 
+// Options is a struct that allows you to change the parsing behavior.
+//
+// Default options have been provided under a variable named "DefaultOptions".
 type Options struct {
-	AllowedDelimiters  string
-	IgnoredStrings     []string
+	// Default: " _.&+,|"
+	// Each character in this string will be evaluated as a delimiter during parsing.
+	// The defaults are fairly sane, but in some cases you may want to change them.
+	// For example in the following filename: DRAMAtical Murder Episode 1 - Data_01_Login
+	// With the defaults, the "_" characters would be replaced with spaces, but this may
+	// not be desired behavior.
+	AllowedDelimiters string
+
+	// Default: []string{}
+	// These strings will be removed from the filename.
+	IgnoredStrings []string
+
+	// Default: true
+	// Determines if the episode number will be parsed into the Elements struct.
 	ParseEpisodeNumber bool
-	ParseEpisodeTitle  bool
+
+	// Default: true
+	// Determines if the episode title will be parsed into the Elements struct.
+	ParseEpisodeTitle bool
+
+	// Default: true
+	// Determines if the file extension will be parsed into the Elements struct.
 	ParseFileExtension bool
-	ParseReleaseGroup  bool
+
+	// Default: true
+	// Determines if the release group will be parsed into the Elements struct.
+	ParseReleaseGroup bool
 }
 
 type tokenizer struct {
@@ -21,7 +45,7 @@ type tokenizer struct {
 	options        Options
 	tokens         *tokens
 	keywordManager *keywordManager
-	elements       *elements
+	elements       *Elements
 }
 
 func (t *tokenizer) tokenize() error {
@@ -147,10 +171,7 @@ func (t *tokenizer) tokenizeByDelimiters(filename string, enclosed bool) error {
 		}
 	}
 	err := t.validateDelimitertokens()
-	if err != nil {
-		return err
-	}
-	return nil
+	return err
 }
 
 func (t *tokenizer) validateDelimitertokens() error {
@@ -207,7 +228,7 @@ func (t *tokenizer) validateDelimitertokens() error {
 				if err != nil {
 					return err
 				}
-				prevToken, err = t.appendTokenTo(nextToken, prevToken)
+				_, err = t.appendTokenTo(nextToken, prevToken)
 				if err != nil {
 					return err
 				}
@@ -239,7 +260,7 @@ func (t *tokenizer) validateDelimitertokens() error {
 					if err != nil {
 						return err
 					}
-					prevToken, err = t.appendTokenTo(nextToken, prevToken)
+					_, err = t.appendTokenTo(nextToken, prevToken)
 					if err != nil {
 						return err
 					}

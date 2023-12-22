@@ -58,71 +58,80 @@ var (
 )
 
 func newKeywordManager() *keywordManager {
-	kws := make(map[string]keyword)
-	kwfileExtensions := make(map[string]keyword)
 	kwm := &keywordManager{
-		keywords:       kws,
-		fileExtensions: kwfileExtensions,
+		keywords:       make(map[string]keyword),
+		fileExtensions: make(map[string]keyword),
 	}
 
-	kwm.Add(elementCategoryAnimeSeasonPrefix, keywordOptionsUnidentifiable, []string{"S", "SAISON", "SEASON"})
-	kwm.Add(elementCategoryAnimeType, keywordOptionsUnidentifiable, []string{
+	kwm.add(elementCategoryAnimeSeasonPrefix, keywordOptionsUnidentifiable, []string{"S", "SAISON", "SEASON"})
+	kwm.add(elementCategoryAnimeType, keywordOptionsUnidentifiable, []string{
 		"GEKIJOUBAN", "MOVIE", "OAD", "OAV", "ONA", "OVA", "SPECIAL", "SPECIALS", "TV"})
-	kwm.Add(elementCategoryAnimeType, keywordOptionsUnidentifiableUnsearchable, []string{"SP"})
-	kwm.Add(elementCategoryAnimeType, keywordOptionsUnidentifiableInvalid, []string{
+	kwm.add(elementCategoryAnimeType, keywordOptionsUnidentifiableUnsearchable, []string{
+		"SP"}) // e.g "Yumeiro Patissiere SP Professional"
+	kwm.add(elementCategoryAnimeType, keywordOptionsUnidentifiableInvalid, []string{
 		"ED", "ENDING", "NCED", "NCOP", "OP", "OPENING", "PREVIEW", "PV"})
-	kwm.Add(elementCategoryAudioTerm, keywordOptionsDefault, []string{
+	kwm.add(elementCategoryAudioTerm, keywordOptionsDefault, []string{
+		// Audio channels
 		"2.0CH", "2CH", "5.1", "5.1CH", "DTS", "DTS-ES", "DTS5.1", "TRUEHD5.1",
+		// Audio codec
 		"AAC", "AACX2", "AACX3", "AACX4", "AC3", "EAC3", "E-AC-3", "FLAC",
 		"FLACX2", "FLACX3", "FLACX4", "LOSSLESS", "MP3", "OGG", "VORBIS",
-		"DD2", "DD2.0"})
-	kwm.Add(elementCategoryDeviceCompatibility, keywordOptionsDefault, []string{
+		"DD2", "DD2.0",
+		// Audio language
+		"DUALAUDIO", "DUAL AUDIO"})
+	kwm.add(elementCategoryDeviceCompatibility, keywordOptionsDefault, []string{
 		"IPAD3", "IPHONE5", "IPOD", "PS3", "XBOX", "XBOX360"})
-	kwm.Add(elementCategoryDeviceCompatibility, keywordOptionsUnidentifiable, []string{"ANDROID"})
-	kwm.Add(elementCategoryEpisodePrefix, keywordOptionsDefault, []string{
+	kwm.add(elementCategoryDeviceCompatibility, keywordOptionsUnidentifiable, []string{
+		"ANDROID"})
+	kwm.add(elementCategoryEpisodePrefix, keywordOptionsDefault, []string{
 		"EP", "EP.", "EPS", "EPS.", "EPISODE", "EPISODE.", "EPISODES",
 		"CAPITULO", "EPISODIO", "FOLGE"})
-	kwm.Add(elementCategoryEpisodePrefix, keywordOptionsInvalid, []string{
-		"E", "\x7B2C"})
-	kwm.Add(elementCategoryFileExtension, keywordOptionsDefault, []string{
+	kwm.add(elementCategoryEpisodePrefix, keywordOptionsInvalid, []string{
+		"E", "\x7B2C"}) // Single letter episode keywords are not valid tokens
+	kwm.add(elementCategoryFileExtension, keywordOptionsDefault, []string{
 		"3GP", "AVI", "DIVX", "FLV", "M2TS", "MKV", "MOV", "MP4", "MPG",
 		"OGM", "RM", "RMVB", "TS", "WEBM", "WMV"})
-	kwm.Add(elementCategoryFileExtension, keywordOptionsInvalid, []string{
+	kwm.add(elementCategoryFileExtension, keywordOptionsInvalid, []string{
 		"AAC", "AIFF", "FLAC", "M4A", "MP3", "MKA", "OGG", "WAV", "WMA",
 		"7Z", "RAR", "ZIP", "ASS", "SRT"})
-	kwm.Add(elementCategoryLanguage, keywordOptionsDefault, []string{
+	kwm.add(elementCategoryLanguage, keywordOptionsDefault, []string{
 		"ENG", "ENGLISH", "ESPANOL", "JAP", "PT-BR", "SPANISH", "VOSTFR"})
-	kwm.Add(elementCategoryLanguage, keywordOptionsUnidentifiable, []string{
-		"ESP", "ITA"})
-	kwm.Add(elementCategoryOther, keywordOptionsDefault, []string{
+	kwm.add(elementCategoryLanguage, keywordOptionsUnidentifiable, []string{
+		"ESP", "ITA"}) // e.g "Tokyo ESP", "Bokura ga Ita"
+	kwm.add(elementCategoryOther, keywordOptionsDefault, []string{
 		"REMASTER", "REMASTERED", "UNCENSORED", "UNCUT", "TS", "VFR",
 		"WIDESCREEN", "WS"})
-	kwm.Add(elementCategoryReleaseGroup, keywordOptionsDefault, []string{
+	kwm.add(elementCategoryReleaseGroup, keywordOptionsDefault, []string{
 		"THORA", "HORRIBLESUBS", "ERAI-RAWS"})
-	kwm.Add(elementCategoryReleaseInformation, keywordOptionsDefault, []string{
+	kwm.add(elementCategoryReleaseInformation, keywordOptionsDefault, []string{
 		"BATCH", "COMPLETE", "PATCH", "REMUX"})
-	kwm.Add(elementCategoryReleaseInformation, keywordOptionsUnidentifiable, []string{
-		"END", "FINAL"})
-	kwm.Add(elementCategoryReleaseVersion, keywordOptionsDefault, []string{
+	kwm.add(elementCategoryReleaseInformation, keywordOptionsUnidentifiable, []string{
+		"END", "FINAL"}) // e.g "The End of Evangelion", "Final Approach"
+	kwm.add(elementCategoryReleaseVersion, keywordOptionsDefault, []string{
 		"V0", "V1", "V2", "V3", "V4"})
-	kwm.Add(elementCategorySource, keywordOptionsDefault, []string{
+	kwm.add(elementCategorySource, keywordOptionsDefault, []string{
 		"BD", "BDRIP", "BLURAY", "BLU-RAY", "DVD", "DVD5", "DVD9",
 		"DVD-R2J", "DVDRIP", "DVD-RIP", "R2DVD", "R2J", "R2JDVD",
 		"R2JDVDRIP", "HDTV", "HDTVRIP", "TVRIP", "TV-RIP",
 		"WEBCAST", "WEBRIP"})
-	kwm.Add(elementCategorySubtitles, keywordOptionsDefault, []string{
+	kwm.add(elementCategorySubtitles, keywordOptionsDefault, []string{
 		"ASS", "BIG5", "DUB", "DUBBED", "HARDSUB", "HARDSUBS", "RAW",
-		"SOFTSUB", "SOFTSUBS", "SUB", "SUBBED", "SUBTITLES"})
-	kwm.Add(elementCategoryVideoTerm, keywordOptionsDefault, []string{
+		"SOFTSUB", "SOFTSUBS", "SUB", "SUBBED", "SUBTITLED"})
+	kwm.add(elementCategoryVideoTerm, keywordOptionsDefault, []string{
+		// Frame rate
 		"23.976FPS", "24FPS", "29.97FPS", "30FPS", "60FPS", "120FPS",
+		// Video codec
 		"8BIT", "8-BIT", "10BIT", "10BITS", "10-BIT", "10-BITS",
 		"HI10", "HI10P", "HI444", "HI444P", "HI444PP",
 		"H264", "H265", "H.264", "H.265", "X264", "X265", "X.264",
 		"AVC", "HEVC", "HEVC2", "DIVX", "DIVX5", "DIVX6", "XVID",
+		// Video format
 		"AVI", "RMVB", "WMV", "WMV3", "WMV9",
+		// Video quality
 		"HQ", "LQ",
+		// Video resolution
 		"HD", "SD"})
-	kwm.Add(elementCategoryVolumePrefix, keywordOptionsDefault, []string{
+	kwm.add(elementCategoryVolumePrefix, keywordOptionsDefault, []string{
 		"VOL", "VOL.", "VOLUME"})
 
 	return kwm
@@ -132,25 +141,17 @@ func (kd keyword) empty() bool {
 	return kd == keyword{}
 }
 
-func (kwm *keywordManager) Add(cat elementCategory, opt keywordOption, keywords []string) {
+func (kwm *keywordManager) add(cat elementCategory, opt keywordOption, keywords []string) {
 	for _, kw := range keywords {
 		if len(kw) == 0 {
 			continue
 		}
 		if cat != elementCategoryFileExtension {
-			v := kwm.keywords[kw]
-			if !v.empty() {
-				continue
-			}
 			kwm.keywords[kw] = keyword{
 				Category: cat,
 				Options:  opt,
 			}
 		} else {
-			v := kwm.fileExtensions[kw]
-			if !v.empty() {
-				continue
-			}
 			kwm.fileExtensions[kw] = keyword{
 				Category: cat,
 				Options:  opt,
@@ -160,56 +161,40 @@ func (kwm *keywordManager) Add(cat elementCategory, opt keywordOption, keywords 
 }
 
 func (kwm *keywordManager) find(word string, cat elementCategory) (keyword, bool) {
-	var kw keyword
-
 	if word == "" {
-		return kw, false
+		return keyword{}, false
 	}
 
 	if cat != elementCategoryFileExtension {
 		v := kwm.keywords[word]
-		if !v.empty() {
-			kw = v
-			if kw.Category != elementCategoryUnknown && kw.Category != cat {
-				return kw, false
-			} else {
-				return kw, true
-			}
+		if !v.empty() && (v.Category == elementCategoryUnknown || v.Category == cat) {
+			return v, true
 		}
 	} else {
 		v := kwm.fileExtensions[word]
 		if !v.empty() {
-			kw = v
-			if kw.Category != elementCategoryUnknown && kw.Category != cat {
-				return kw, false
-			} else {
-				return kw, true
-			}
+			return v, true
 		}
 	}
-	return kw, false
+	return keyword{}, false
 }
 
 func (kwm *keywordManager) FindWithoutCategory(word string) (keyword, bool) {
-	var kw keyword
-
 	if word == "" {
-		return kw, false
+		return keyword{}, false
 	}
 	v := kwm.keywords[word]
 	if !v.empty() {
-		kw = v
-		return kw, true
+		return v, true
 	}
-	v = kwm.keywords[word]
+	v = kwm.fileExtensions[word]
 	if !v.empty() {
-		kw = v
-		return kw, true
+		return v, true
 	}
-	return kw, false
+	return keyword{}, false
 }
 
-func (kwm *keywordManager) Peek(word string, e *elements) (indexSets, error) {
+func (kwm *keywordManager) Peek(word string, e *Elements) (indexSets, error) {
 	entries := map[elementCategory][]string{
 		elementCategoryAudioTerm:       []string{"Dual Audio", "DualAudio"},
 		elementCategoryVideoTerm:       []string{"H264", "H.264", "h264", "h.264"},

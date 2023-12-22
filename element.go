@@ -1,34 +1,104 @@
 package anitogo
 
 type elementCategory int
-type elements struct {
-	AnimeSeason         []string `json:"anime_season,omitempty"`
-	AnimeSeasonPrefix   []string `json:"anime_season_prefix,omitempty"`
-	AnimeTitle          string   `json:"anime_title,omitempty"`
-	AnimeType           string   `json:"anime_type,omitempty"`
-	AnimeYear           string   `json:"anime_year,omitempty"`
-	AudioTerm           []string `json:"audio_term,omitempty"`
+
+// Elements is a struct representing a parsed anime filename.
+type Elements struct {
+	// Slice of strings representing the season of anime. "S1-S3" would be represented as []string{"1", "3"}.
+	AnimeSeason []string `json:"anime_season,omitempty"`
+
+	// Represents the strings prefixing the season in the file, e.g in "SEASON 2" "SEASON" is the AnimeSeasonPrefix.
+	AnimeSeasonPrefix []string `json:"anime_season_prefix,omitempty"`
+
+	// Title of the Anime. e.g in "[HorribleSubs] Boku no Hero Academia - 01 [1080p].mkv",
+	// "Boku No Hero Academia" is the AnimeTitle.
+	AnimeTitle string `json:"anime_title,omitempty"`
+
+	// Type specified in the anime file, e.g ED, OP, Movie, etc.
+	AnimeType string `json:"anime_type,omitempty"`
+
+	// Year the anime was released.
+	AnimeYear string `json:"anime_year,omitempty"`
+
+	// Slice of strings representing the audio terms included in the filename, e.g FLAC, AAC, etc.
+	AudioTerm []string `json:"audio_term,omitempty"`
+
+	// Slice of strings representing devices the video is compatible with that are mentioned in the filename.
 	DeviceCompatibility []string `json:"device_compatibility,omitempty"`
-	EpisodeNumber       []string `json:"episode_number,omitempty"`
-	EpisodeNumberAlt    []string `json:"episode_number_alt,omitempty"`
-	EpisodePrefix       []string `json:"episode_prefix,omitempty"`
-	EpisodeTitle        string   `json:"episode_title,omitempty"`
-	FileChecksum        string   `json:"file_checksum,omitempty"`
-	FileExtension       string   `json:"file_extension,omitempty"`
-	FileName            string   `json:"file_name,omitempty"`
-	Language            []string `json:"language,omitempty"`
-	Other               []string `json:"other,omitempty"`
-	ReleaseGroup        string   `json:"release_group,omitempty"`
-	ReleaseInformation  []string `json:"release_information,omitempty"`
-	ReleaseVersion      []string `json:"release_version,omitempty"`
-	Source              []string `json:"source,omitempty"`
-	Subtitles           []string `json:"subtitles,omitempty"`
-	VideoResolution     string   `json:"video_resolution,omitempty"`
-	VideoTerm           []string `json:"video_term,omitempty"`
-	VolumeNumber        []string `json:"volume_number,omitempty"`
-	VolumePrefix        []string `json:"volume_prefix,omitempty"`
-	Unknown             []string `json:"unknown,omitempty"`
-	CheckAltNumber      bool     `json:"-"`
+
+	// Slice of strings representing the episode numbers. "01-10" would be respresented as []string{"1", "10"}.
+	EpisodeNumber []string `json:"episode_number,omitempty"`
+
+	// Slice of strings representing the alternative episode number.
+	// This is for cases where you may have an episode number relative to the season,
+	// but a larger episode number as if it were all one season.
+	// e.g in [Hatsuyuki]_Kuroko_no_Basuke_S3_-_01_(51)_[720p][10bit][619C57A0].mkv
+	// 01 would be the EpisodeNumber, and 51 would be the EpisodeNumberAlt.
+	EpisodeNumberAlt []string `json:"episode_number_alt,omitempty"`
+
+	// Slice of strings representing the words prefixing the episode number in the file, e.g in "EPISODE 2", "EPISODE" is the prefix.
+	EpisodePrefix []string `json:"episode_prefix,omitempty"`
+
+	// Title of the episode. e.g in "[BM&T] Toradora! - 07v2 - Pool Opening [720p Hi10 ] [BD] [8F59F2BA]",
+	// "Pool Opening" is the EpisodeTitle.
+	EpisodeTitle string `json:"episode_title,omitempty"`
+
+	// Checksum of the file, in [BM&T] Toradora! - 07v2 - Pool Opening [720p Hi10 ] [BD] [8F59F2BA],
+	// "8F59F2BA" would be the FileChecksum.
+	FileChecksum string `json:"file_checksum,omitempty"`
+
+	// File extension, in [HorribleSubs] Boku no Hero Academia - 01 [1080p].mkv,
+	// "mkv" would be the FileExtension.
+	FileExtension string `json:"file_extension,omitempty"`
+
+	// Full filename that was parsed.
+	FileName string `json:"file_name,omitempty"`
+
+	// Languages specified in the file name, e.g RU, JP, EN etc.
+	Language []string `json:"language,omitempty"`
+
+	// Terms that could not be parsed into other buckets, but were deemed identifiers.
+	// In [chibi-Doki] Seikon no Qwaser - 13v0 (Uncensored Director's Cut) [988DB090].mkv,
+	// "Uncensored" is parsed into Other.
+	Other []string `json:"other,omitempty"`
+
+	// The fan sub group that uploaded the file. In [HorribleSubs] Boku no Hero Academia - 01 [1080p],
+	// "HorribleSubs" is the ReleaseGroup.
+	ReleaseGroup string `json:"release_group,omitempty"`
+
+	// Information about the release that wasn't a version.
+	// In "[SubDESU-H] Swing out Sisters Complete Version (720p x264 8bit AC3) [3ABD57E6].mp4
+	// "Complete" is parsed into ReleaseInformation.
+	ReleaseInformation []string `json:"release_information,omitempty"`
+
+	// Slice of strings representing the version of the release.
+	// In [FBI] Baby Princess 3D Paradise Love 01v0 [BD][720p-AAC][457CC066].mkv, 0 is parsed into ReleaseVersion.
+	ReleaseVersion []string `json:"release_version,omitempty"`
+
+	// Slice of strings representing where the video was ripped from. e.g BLU-RAY, DVD, etc.
+	Source []string `json:"source,omitempty"`
+
+	// Slice of strings representing the type of subtitles included, e.g HARDSUB, BIG5, etc.
+	Subtitles []string `json:"subtitles,omitempty"`
+
+	// Resolution of the video. Can be formatted like 1920x1080, 1080, 1080p, etc depending
+	// on how it is represented in the filename.
+	VideoResolution string `json:"video_resolution,omitempty"`
+
+	// Slice of strings representing the video terms included in the filename, e.g h264, x264, etc.
+	VideoTerm []string `json:"video_term,omitempty"`
+
+	// Slice of strings represnting the volume numbers. "01-10" would be represented as []string{"1", "10"}.
+	VolumeNumber []string `json:"volume_number,omitempty"`
+
+	// Slice of strings representing the words prefixing the volume number in the file, e.g in "VOLUME 2", "VOLUME" is the prefix.
+	VolumePrefix []string `json:"volume_prefix,omitempty"`
+
+	// Entries that could not be parsed into any other categories.
+	Unknown []string `json:"unknown,omitempty"`
+
+	// Bool determining if "EpisodeNumberAlt" should be parsed or not.
+	CheckAltNumber bool `json:"-"`
 }
 
 const (
@@ -58,19 +128,12 @@ const (
 	elementCategoryVolumeNumber
 	elementCategoryVolumePrefix
 	elementCategoryUnknown
-	elementCategoryCheckAltNumber
 )
 
-func newElements() *elements {
-	e := elements{}
+func newElements() *Elements {
+	e := Elements{}
 
 	return &e
-}
-
-func newElementsArr() []elements {
-	e := []elements{}
-
-	return e
 }
 
 func checkInList(arr []string, content string) bool {
@@ -91,28 +154,26 @@ func getIndex(arr []string, content string) int {
 	return -1
 }
 
-func (e *elements) getCheckAltNumber() bool {
+func (e *Elements) getCheckAltNumber() bool {
 	return e.CheckAltNumber
 }
 
-func (e *elements) setCheckAltNumber(value bool) {
+func (e *Elements) setCheckAltNumber(value bool) {
 	e.CheckAltNumber = value
 }
 
-func (e *elements) insert(cat elementCategory, content string) {
+func (e *Elements) insert(cat elementCategory, content string) {
 	switch cat {
 	case elementCategoryAnimeSeason:
 		if checkInList(e.AnimeSeason, content) {
 			return
-		} else {
-			e.AnimeSeason = append(e.AnimeSeason, content)
 		}
+		e.AnimeSeason = append(e.AnimeSeason, content)
 	case elementCategoryAnimeSeasonPrefix:
 		if checkInList(e.AnimeSeasonPrefix, content) {
 			return
-		} else {
-			e.AnimeSeasonPrefix = append(e.AnimeSeasonPrefix, content)
 		}
+		e.AnimeSeasonPrefix = append(e.AnimeSeasonPrefix, content)
 	case elementCategoryAnimeTitle:
 		e.AnimeTitle = content
 	case elementCategoryAnimeType:
@@ -122,33 +183,28 @@ func (e *elements) insert(cat elementCategory, content string) {
 	case elementCategoryAudioTerm:
 		if checkInList(e.AudioTerm, content) {
 			return
-		} else {
-			e.AudioTerm = append(e.AudioTerm, content)
 		}
+		e.AudioTerm = append(e.AudioTerm, content)
 	case elementCategoryDeviceCompatibility:
 		if checkInList(e.DeviceCompatibility, content) {
 			return
-		} else {
-			e.DeviceCompatibility = append(e.DeviceCompatibility, content)
 		}
+		e.DeviceCompatibility = append(e.DeviceCompatibility, content)
 	case elementCategoryEpisodeNumber:
 		if checkInList(e.EpisodeNumber, content) {
 			return
-		} else {
-			e.EpisodeNumber = append(e.EpisodeNumber, content)
 		}
+		e.EpisodeNumber = append(e.EpisodeNumber, content)
 	case elementCategoryEpisodeNumberAlt:
 		if checkInList(e.EpisodeNumberAlt, content) {
 			return
-		} else {
-			e.EpisodeNumberAlt = append(e.EpisodeNumberAlt, content)
 		}
+		e.EpisodeNumberAlt = append(e.EpisodeNumberAlt, content)
 	case elementCategoryEpisodePrefix:
 		if checkInList(e.EpisodePrefix, content) {
 			return
-		} else {
-			e.EpisodePrefix = append(e.EpisodePrefix, content)
 		}
+		e.EpisodePrefix = append(e.EpisodePrefix, content)
 	case elementCategoryEpisodeTitle:
 		e.EpisodeTitle = content
 	case elementCategoryFileChecksum:
@@ -160,71 +216,61 @@ func (e *elements) insert(cat elementCategory, content string) {
 	case elementCategoryLanguage:
 		if checkInList(e.Language, content) {
 			return
-		} else {
-			e.Language = append(e.Language, content)
 		}
+		e.Language = append(e.Language, content)
 	case elementCategoryOther:
 		if checkInList(e.Other, content) {
 			return
-		} else {
-			e.Other = append(e.Other, content)
 		}
+		e.Other = append(e.Other, content)
 	case elementCategoryReleaseGroup:
 		e.ReleaseGroup = content
 	case elementCategoryReleaseInformation:
 		if checkInList(e.ReleaseInformation, content) {
 			return
-		} else {
-			e.ReleaseInformation = append(e.ReleaseInformation, content)
 		}
+		e.ReleaseInformation = append(e.ReleaseInformation, content)
 	case elementCategoryReleaseVersion:
 		if checkInList(e.ReleaseVersion, content) {
 			return
-		} else {
-			e.ReleaseVersion = append(e.ReleaseVersion, content)
 		}
+		e.ReleaseVersion = append(e.ReleaseVersion, content)
 	case elementCategorySource:
 		if checkInList(e.Source, content) {
 			return
-		} else {
-			e.Source = append(e.Source, content)
 		}
+		e.Source = append(e.Source, content)
 	case elementCategorySubtitles:
 		if checkInList(e.Subtitles, content) {
 			return
-		} else {
-			e.Subtitles = append(e.Subtitles, content)
 		}
+		e.Subtitles = append(e.Subtitles, content)
 	case elementCategoryVideoResolution:
 		e.VideoResolution = content
 	case elementCategoryVideoTerm:
 		if checkInList(e.VideoTerm, content) {
 			return
-		} else {
-			e.VideoTerm = append(e.VideoTerm, content)
 		}
+		e.VideoTerm = append(e.VideoTerm, content)
 	case elementCategoryVolumeNumber:
 		if checkInList(e.VolumeNumber, content) {
 			return
-		} else {
-			e.VolumeNumber = append(e.VolumeNumber, content)
 		}
+		e.VolumeNumber = append(e.VolumeNumber, content)
 	case elementCategoryVolumePrefix:
 		if checkInList(e.VolumePrefix, content) {
 			return
-		} else {
-			e.VolumePrefix = append(e.VolumePrefix, content)
 		}
+		e.VolumePrefix = append(e.VolumePrefix, content)
 	case elementCategoryUnknown:
 		if checkInList(e.Unknown, content) {
 			return
-		} else {
-			e.Unknown = append(e.Unknown, content)
 		}
+		e.Unknown = append(e.Unknown, content)
 	}
 }
 
-func (e *elements) erase(cat elementCategory) {
+func (e *Elements) erase(cat elementCategory) {
 	switch cat {
 	case elementCategoryAnimeSeason:
 		e.AnimeSeason = nil
@@ -281,30 +327,6 @@ func (e *elements) erase(cat elementCategory) {
 	}
 }
 
-func (e *elements) fixJson() {
-	for _, cat := range []elementCategory{
-		elementCategoryAnimeSeason,
-		elementCategoryAnimeSeasonPrefix,
-		elementCategoryAudioTerm,
-		elementCategoryDeviceCompatibility,
-		elementCategoryEpisodeNumber,
-		elementCategoryEpisodeNumberAlt,
-		elementCategoryEpisodePrefix,
-		elementCategoryLanguage,
-		elementCategoryOther,
-		elementCategoryReleaseInformation,
-		elementCategorySubtitles,
-		elementCategoryVideoTerm,
-		elementCategoryVolumeNumber,
-		elementCategoryVolumePrefix,
-		elementCategoryUnknown,
-	} {
-		if equal(e.get(cat), []string{""}) {
-			e.erase(cat)
-		}
-	}
-}
-
 func equal(a, b []string) bool {
 	if len(a) != len(b) {
 		return false
@@ -317,22 +339,20 @@ func equal(a, b []string) bool {
 	return true
 }
 
-func (e *elements) remove(cat elementCategory, content string) {
+func (e *Elements) remove(cat elementCategory, content string) {
 	switch cat {
 	case elementCategoryAnimeSeason:
 		idx := getIndex(e.AnimeSeason, content)
 		if idx == -1 {
 			return
-		} else {
-			e.AnimeSeason = append(e.AnimeSeason[:idx], e.AnimeSeason[idx+1:]...)
 		}
+		e.AnimeSeason = append(e.AnimeSeason[:idx], e.AnimeSeason[idx+1:]...)
 	case elementCategoryAnimeSeasonPrefix:
 		idx := getIndex(e.AnimeSeasonPrefix, content)
 		if idx == -1 {
 			return
-		} else {
-			e.AnimeSeasonPrefix = append(e.AnimeSeasonPrefix[:idx], e.AnimeSeasonPrefix[idx+1:]...)
 		}
+		e.AnimeSeasonPrefix = append(e.AnimeSeasonPrefix[:idx], e.AnimeSeasonPrefix[idx+1:]...)
 	case elementCategoryAnimeTitle:
 		e.AnimeTitle = ""
 	case elementCategoryAnimeType:
@@ -343,37 +363,32 @@ func (e *elements) remove(cat elementCategory, content string) {
 		idx := getIndex(e.AudioTerm, content)
 		if idx == -1 {
 			return
-		} else {
-			e.AudioTerm = append(e.AudioTerm[:idx], e.AudioTerm[idx+1:]...)
 		}
+		e.AudioTerm = append(e.AudioTerm[:idx], e.AudioTerm[idx+1:]...)
 	case elementCategoryDeviceCompatibility:
 		idx := getIndex(e.DeviceCompatibility, content)
 		if idx == -1 {
 			return
-		} else {
-			e.DeviceCompatibility = append(e.DeviceCompatibility[:idx], e.DeviceCompatibility[idx+1:]...)
 		}
+		e.DeviceCompatibility = append(e.DeviceCompatibility[:idx], e.DeviceCompatibility[idx+1:]...)
 	case elementCategoryEpisodeNumber:
 		idx := getIndex(e.EpisodeNumber, content)
 		if idx == -1 {
 			return
-		} else {
-			e.EpisodeNumber = append(e.EpisodeNumber[:idx], e.EpisodeNumber[idx+1:]...)
 		}
+		e.EpisodeNumber = append(e.EpisodeNumber[:idx], e.EpisodeNumber[idx+1:]...)
 	case elementCategoryEpisodeNumberAlt:
 		idx := getIndex(e.EpisodeNumberAlt, content)
 		if idx == -1 {
 			return
-		} else {
-			e.EpisodeNumberAlt = append(e.EpisodeNumberAlt[:idx], e.EpisodeNumberAlt[idx+1:]...)
 		}
+		e.EpisodeNumberAlt = append(e.EpisodeNumberAlt[:idx], e.EpisodeNumberAlt[idx+1:]...)
 	case elementCategoryEpisodePrefix:
 		idx := getIndex(e.EpisodePrefix, content)
 		if idx == -1 {
 			return
-		} else {
-			e.EpisodePrefix = append(e.EpisodePrefix[:idx], e.EpisodePrefix[idx+1:]...)
 		}
+		e.EpisodePrefix = append(e.EpisodePrefix[:idx], e.EpisodePrefix[idx+1:]...)
 	case elementCategoryEpisodeTitle:
 		e.EpisodeTitle = ""
 	case elementCategoryFileChecksum:
@@ -386,80 +401,70 @@ func (e *elements) remove(cat elementCategory, content string) {
 		idx := getIndex(e.Language, content)
 		if idx == -1 {
 			return
-		} else {
-			e.Language = append(e.Language[:idx], e.Language[idx+1:]...)
 		}
+		e.Language = append(e.Language[:idx], e.Language[idx+1:]...)
 	case elementCategoryOther:
 		idx := getIndex(e.Other, content)
 		if idx == -1 {
 			return
-		} else {
-			e.Other = append(e.Other[:idx], e.Other[idx+1:]...)
 		}
+		e.Other = append(e.Other[:idx], e.Other[idx+1:]...)
 	case elementCategoryReleaseGroup:
 		e.ReleaseGroup = ""
 	case elementCategoryReleaseInformation:
 		idx := getIndex(e.ReleaseInformation, content)
 		if idx == -1 {
 			return
-		} else {
-			e.ReleaseInformation = append(e.ReleaseInformation[:idx], e.ReleaseInformation[idx+1:]...)
 		}
+		e.ReleaseInformation = append(e.ReleaseInformation[:idx], e.ReleaseInformation[idx+1:]...)
 	case elementCategoryReleaseVersion:
 		idx := getIndex(e.ReleaseVersion, content)
 		if idx == -1 {
 			return
-		} else {
-			e.ReleaseVersion = append(e.ReleaseVersion[:idx], e.ReleaseVersion[idx+1:]...)
 		}
+		e.ReleaseVersion = append(e.ReleaseVersion[:idx], e.ReleaseVersion[idx+1:]...)
 	case elementCategorySource:
 		idx := getIndex(e.Source, content)
 		if idx == -1 {
 			return
-		} else {
-			e.Source = append(e.Source[:idx], e.Source[idx+1:]...)
 		}
+		e.Source = append(e.Source[:idx], e.Source[idx+1:]...)
 	case elementCategorySubtitles:
 		idx := getIndex(e.Subtitles, content)
 		if idx == -1 {
 			return
-		} else {
-			e.Subtitles = append(e.Subtitles[:idx], e.Subtitles[idx+1:]...)
 		}
+		e.Subtitles = append(e.Subtitles[:idx], e.Subtitles[idx+1:]...)
 	case elementCategoryVideoResolution:
 		e.VideoResolution = ""
 	case elementCategoryVideoTerm:
 		idx := getIndex(e.VideoTerm, content)
 		if idx == -1 {
 			return
-		} else {
-			e.VideoTerm = append(e.VideoTerm[:idx], e.VideoTerm[idx+1:]...)
 		}
+		e.VideoTerm = append(e.VideoTerm[:idx], e.VideoTerm[idx+1:]...)
 	case elementCategoryVolumeNumber:
 		idx := getIndex(e.VolumeNumber, content)
 		if idx == -1 {
 			return
-		} else {
-			e.VolumeNumber = append(e.VolumeNumber[:idx], e.VolumeNumber[idx+1:]...)
 		}
+		e.VolumeNumber = append(e.VolumeNumber[:idx], e.VolumeNumber[idx+1:]...)
 	case elementCategoryVolumePrefix:
 		idx := getIndex(e.VolumePrefix, content)
 		if idx == -1 {
 			return
-		} else {
-			e.VolumePrefix = append(e.VolumePrefix[:idx], e.VolumePrefix[idx+1:]...)
 		}
+		e.VolumePrefix = append(e.VolumePrefix[:idx], e.VolumePrefix[idx+1:]...)
 	case elementCategoryUnknown:
 		idx := getIndex(e.Unknown, content)
 		if idx == -1 {
 			return
-		} else {
-			e.Unknown = append(e.Unknown[:idx], e.Unknown[idx+1:]...)
 		}
+		e.Unknown = append(e.Unknown[:idx], e.Unknown[idx+1:]...)
 	}
 }
 
-func (e *elements) contains(cat elementCategory) bool {
+func (e *Elements) contains(cat elementCategory) bool {
 	switch cat {
 	case elementCategoryAnimeSeason:
 		return e.AnimeSeason != nil
@@ -517,11 +522,7 @@ func (e *elements) contains(cat elementCategory) bool {
 	return false
 }
 
-func (e *elements) empty() bool {
-	return e == &elements{}
-}
-
-func (e *elements) get(cat elementCategory) []string {
+func (e *Elements) get(cat elementCategory) []string {
 	switch cat {
 	case elementCategoryAnimeSeason:
 		return e.AnimeSeason

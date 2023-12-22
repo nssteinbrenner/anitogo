@@ -21,33 +21,33 @@ The following filename...
 
 The following example code:
 
-        package main
+    package main
 
-        import (
-            "fmt"
-            "encoding/json"
+    import (
+        "fmt"
+        "encoding/json"
 
-            "github.com/nssteinbrenner/anitogo"
-        )
+        "github.com/nssteinbrenner/anitogo"
+    )
 
-        func main() {
-            parsed, err := anitogo.Parse("[Nubles] Space Battleship Yamato 2199 (2012) episode 18 (720p 10 bit AAC)[1F56D642]", anitogo.DefaultOptions)
-            if err != nil {
-                fmt.Println(err)
-            }
-            jsonParsed, err := json.MarshalIndent(parsed, "", "    ")
-            if err != nil {
-                fmt.Println(err)
-            }
-            fmt.Println(string(jsonParsed) + "\n")
-
-            // Accessing the elements directly
-            fmt.Println("Anime Title:", parsed.AnimeTitle)
-            fmt.Println("Anime Year:", parsed.AnimeYear)
-            fmt.Println("Episode Number:", parsed.EpisodeNumber)
-            fmt.Println("Release Group:", parsed.ReleaseGroup)
-            fmt.Println("File Checksum:", parsed.FileChecksum)
+    func main() {
+        parsed, err := anitogo.Parse("[Nubles] Space Battleship Yamato 2199 (2012) episode 18 (720p 10 bit AAC)[1F56D642]", anitogo.DefaultOptions)
+        if err != nil {
+            fmt.Println(err)
         }
+        jsonParsed, err := json.MarshalIndent(parsed, "", "    ")
+        if err != nil {
+            fmt.Println(err)
+        }
+        fmt.Println(string(jsonParsed) + "\n")
+
+        // Accessing the elements directly
+        fmt.Println("Anime Title:", parsed.AnimeTitle)
+        fmt.Println("Anime Year:", parsed.AnimeYear)
+        fmt.Println("Episode Number:", parsed.EpisodeNumber)
+        fmt.Println("Release Group:", parsed.ReleaseGroup)
+        fmt.Println("File Checksum:", parsed.FileChecksum)
+    }
 
 Will output:
 
