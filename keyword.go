@@ -122,7 +122,7 @@ func newKeywordManager() *keywordManager {
 	kwm.add(elementCategorySubtitles, keywordOptionsDefault, []string{
 		"ASS", "BIG5", "DUB", "DUBBED", "HARDSUB", "HARDSUBS", "RAW",
 		"SOFTSUB", "SOFTSUBS", "SUB", "SUBBED", "SUBTITLED",
-	    "MULTISUB", "MULTI SUB"})
+	        "MULTISUB", "MULTI SUB"})
 	kwm.add(elementCategoryVideoTerm, keywordOptionsDefault, []string{
 		// Frame rate
 		"23.976FPS", "24FPS", "29.97FPS", "30FPS", "60FPS", "120FPS",
