@@ -1,4 +1,4 @@
-# Anitogo [![License](https://img.shields.io/github/license/nssteinbrenner/anitogo)](https://www.mozilla.org/en-US/MPL/2.0/) [![Godoc](https://img.shields.io/static/v1?label=godoc&message=reference&color=blue)](https://pkg.go.dev/github.com/nssteinbrenner/anitogo) [![Go Report Card](https://goreportcard.com/badge/github.com/nssteinbrenner/anitogo)](https://goreportcard.com/report/github.com/nssteinbrenner/anitogo) [![Build Status](https://cloud.drone.io/api/badges/nssteinbrenner/anitogo/status.svg)](https://cloud.drone.io/nssteinbrenner/anitogo) [![codecov](https://codecov.io/gh/nssteinbrenner/anitogo/branch/master/graph/badge.svg)](https://codecov.io/gh/nssteinbrenner/anitogo)
+# Anitogo [![License](https://img.shields.io/github/license/nssteinbrenner/anitogo)](https://www.mozilla.org/en-US/MPL/2.0/) [![Godoc](https://img.shields.io/static/v1?label=godoc&message=reference&color=blue)](https://pkg.go.dev/github.com/nssteinbrenner/anitogo)
 
 Anitogo is a Golang library for parsing anime video filenames. It is based off of [Anitomy](https://github.com/erengy/anitomy) and [Anitopy](https://github.com/igorcmoura/anitopy).
 
@@ -76,7 +76,7 @@ The Parse function returns a pointer to an Elements struct. The full definition 
         AnimeSeason         []string `json:"anime_season,omitempty"`
         AnimeSeasonPrefix   []string `json:"anime_season_prefix,omitempty"`
         AnimeTitle          string   `json:"anime_title,omitempty"`
-        AnimeType           []string  `json:"anime_type,omitempty"`
+        AnimeType           []string `json:"anime_type,omitempty"`
         AnimeYear           string   `json:"anime_year,omitempty"`
         AudioTerm           []string `json:"audio_term,omitempty"`
         DeviceCompatibility []string `json:"device_compatibility,omitempty"`
