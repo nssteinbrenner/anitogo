@@ -1,6 +1,7 @@
 package anitogo
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 )
@@ -289,6 +290,15 @@ func (p *parser) searchForEpisodeTitle() {
 }
 
 func (p *parser) validateElements() {
+	if p.tokenizer.elements.contains(elementCategoryEpisodeTitle) {
+		episodeTitle := p.tokenizer.elements.get(elementCategoryEpisodeTitle)[0]
+		re := regexp.MustCompile("^~\\s(\\d{1,2})$")
+		match := re.FindStringSubmatch(episodeTitle)
+		if match != nil {
+			p.tokenizer.elements.erase(elementCategoryEpisodeTitle)
+			p.tokenizer.elements.insert(elementCategoryEpisodeNumber, match[1])
+		}
+	}
 	if p.tokenizer.elements.contains(elementCategoryAnimeType) && p.tokenizer.elements.contains(elementCategoryEpisodeTitle) {
 		episodeTitle := p.tokenizer.elements.get(elementCategoryEpisodeTitle)[0]
 		animeTypeList := p.tokenizer.elements.get(elementCategoryAnimeType)
