@@ -2,6 +2,7 @@ package anitogo
 
 import (
 	"encoding/json"
+	"flag"
 	"io/ioutil"
 	"os"
 	"testing"
@@ -12,11 +13,9 @@ type failedParse struct {
 	Got      Elements `json:"got"`
 }
 
+var testDataPath = flag.String("file", "./test/data.json", "Path to test data JSON")
+
 func TestAnitogoParse(t *testing.T) {
-	testDataPath := os.Getenv("TEST_DATA_PATH")
-	if testDataPath == "" {
-		t.Fatal("Missing TEST_DATA_PATH environment variable for json test data file")
-	}
 	retElems := Parse("", DefaultOptions)
 	if retElems.FileName != "" {
 		t.Error("expected empty elements")
@@ -34,7 +33,7 @@ func TestAnitogoParse(t *testing.T) {
 
 	e := []Elements{}
 	notMatched := []failedParse{}
-	jsonFile, err := os.Open(testDataPath)
+	jsonFile, err := os.Open(*testDataPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -200,12 +199,8 @@ func TestAnitogoRemoveExtensionFromFilename(t *testing.T) {
 }
 
 func BenchmarkAnitogoParse(b *testing.B) {
-	testDataPath := os.Getenv("TEST_DATA_PATH")
-	if testDataPath == "" {
-		b.Fatal("Missing TEST_DATA_PATH environment variable for json test data file")
-	}
 	e := []Elements{}
-	jsonFile, err := os.Open(testDataPath)
+	jsonFile, err := os.Open(*testDataPath)
 	if err != nil {
 		b.Fatal(err)
 	}
