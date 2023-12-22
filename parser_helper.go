@@ -9,55 +9,38 @@ import (
 
 const dashes = "-\u2010\u2011\u2012\u2013\u2014\u2015"
 
-func (p *parser) checkAnimeSeasonKeyword(tkn *token) (bool, error) {
-	prevToken, found, err := p.tokenizer.tokens.findPrevious(*tkn, tokenFlagsNotDelimiter)
-	if err != nil {
-		return false, err
-	}
+func (p *parser) checkAnimeSeasonKeyword(tkn *token) bool {
+	prevToken, found := p.tokenizer.tokens.findPrevious(*tkn, tokenFlagsNotDelimiter)
 	if found {
 		num := getNumberFromOrdinal(prevToken.Content)
 		if num != 0 {
 			p.setAnimeSeason(prevToken, tkn, strconv.Itoa(num))
-			return true, nil
+			return true
 		}
 	}
 
-	nextToken, found, err := p.tokenizer.tokens.findNext(*tkn, tokenFlagsNotDelimiter)
-	if err != nil {
-		return false, err
-	}
+	nextToken, found := p.tokenizer.tokens.findNext(*tkn, tokenFlagsNotDelimiter)
 	if found && isNumeric(nextToken.Content) {
 		p.setAnimeSeason(tkn, nextToken, nextToken.Content)
-		return true, nil
+		return true
 	}
-	return false, nil
+	return false
 }
 
-func (p *parser) setAnimeSeason(first, second *token, content string) error {
+func (p *parser) setAnimeSeason(first, second *token, content string) {
 	p.tokenizer.elements.insert(elementCategoryAnimeSeason, content)
-	firstIdx, err := p.tokenizer.tokens.getIndex(*first, 0)
-	if err != nil {
-		return err
-	}
-	secondIdx, err := p.tokenizer.tokens.getIndex(*second, firstIdx)
-	if err != nil {
-		return err
-	}
+	firstIdx := p.tokenizer.tokens.getIndex(*first, 0)
+	secondIdx := p.tokenizer.tokens.getIndex(*second, firstIdx)
 	firstTkn, _ := p.tokenizer.tokens.get(firstIdx)
 	secondTkn, _ := p.tokenizer.tokens.get(secondIdx)
 	firstTkn.Category = tokenCategoryIdentifier
 	secondTkn.Category = tokenCategoryIdentifier
-
-	return nil
 }
 
-func (p *parser) buildElement(cat elementCategory, beginToken, endToken *token, keepDelimiters bool) error {
+func (p *parser) buildElement(cat elementCategory, beginToken, endToken *token, keepDelimiters bool) {
 	element := ""
 
-	tknList, err := p.tokenizer.tokens.getList(-1, beginToken, endToken)
-	if err != nil {
-		return err
-	}
+	tknList := p.tokenizer.tokens.getList(-1, beginToken, endToken)
 	for _, tkn := range tknList {
 		if tkn.Category == tokenCategoryUnknown {
 			element += tkn.Content
@@ -85,7 +68,6 @@ func (p *parser) buildElement(cat elementCategory, beginToken, endToken *token, 
 	if element != "" {
 		p.tokenizer.elements.insert(cat, strings.Trim(strings.ToValidUTF8(element, ""), " "))
 	}
-	return nil
 }
 
 func findNonNumberInString(str string) int {
@@ -118,15 +100,21 @@ func isMostlyLatinString(str string) bool {
 		return false
 	}
 	latinLength := 0
+	nonLatinLength := 0
 	for _, r := range str {
 		if isLatinRune(r) {
 			latinLength++
+		} else {
+			nonLatinLength++
 		}
 	}
-	return (float32(latinLength) / float32(len(str))) >= 0.5
+	return latinLength > nonLatinLength
 }
 
 func stringToInt(str string) int {
+	if strings.Index(str, ".") != -1 {
+		str = str[:strings.Index(str, ".")]
+	}
 	i, err := strconv.Atoi(str)
 	if err != nil {
 		return 0

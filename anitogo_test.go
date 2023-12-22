@@ -12,10 +12,24 @@ type failedParse struct {
 	Got      Elements `json:"got"`
 }
 
-func TestParse(t *testing.T) {
+func TestAnitogoParse(t *testing.T) {
 	testDataPath := os.Getenv("TEST_DATA_PATH")
 	if testDataPath == "" {
 		t.Fatal("Missing TEST_DATA_PATH environment variable for json test data file")
+	}
+	retElems := Parse("", DefaultOptions)
+	if retElems.FileName != "" {
+		t.Error("expected empty elements")
+	}
+	retElems = Parse("1", DefaultOptions)
+	if retElems.AnimeTitle != "" {
+		t.Error("expected empty anime title")
+	}
+	noReleaseGroup := DefaultOptions
+	noReleaseGroup.ParseReleaseGroup = false
+	retElems = Parse("[THORA]_Toradora!_(2008)_-_01v2_-_Tiger_and_Dragon_[1280x720_H.264_FLAC][1234ABCD].mkv", noReleaseGroup)
+	if retElems.ReleaseGroup != "" {
+		t.Error("expected empty release group")
 	}
 
 	e := []Elements{}
@@ -31,10 +45,7 @@ func TestParse(t *testing.T) {
 	}
 	json.Unmarshal(byteValue, &e)
 	for _, v := range e {
-		ret, err := Parse(v.FileName, DefaultOptions)
-		if err != nil {
-			t.Error(err)
-		}
+		ret := Parse(v.FileName, DefaultOptions)
 		if !equal(v.AnimeSeason, ret.AnimeSeason) {
 			notMatched = append(notMatched, failedParse{
 				Expected: v,
@@ -51,6 +62,11 @@ func TestParse(t *testing.T) {
 				Got:      *ret,
 			})
 		} else if ret.AnimeYear != v.AnimeYear {
+			notMatched = append(notMatched, failedParse{
+				Expected: v,
+				Got:      *ret,
+			})
+		} else if !equal(v.AnimeType, ret.AnimeType) {
 			notMatched = append(notMatched, failedParse{
 				Expected: v,
 				Got:      *ret,
@@ -164,7 +180,26 @@ func TestParse(t *testing.T) {
 	}
 }
 
-func BenchmarkParse(b *testing.B) {
+func TestAnitogoRemoveIgnoredStrings(t *testing.T) {
+	s := removeIgnoredStrings("testing this", []string{" ", "this"})
+	if s != "testing" {
+		t.Errorf("expected \"testing\" got \"%s\"", s)
+	}
+}
+
+func TestAnitogoRemoveExtensionFromFilename(t *testing.T) {
+	s := "[HorribleSubs] Boku no Hero Academia - 01 [1080p].mkv"
+	kwm := newKeywordManager()
+	filename, extension := removeExtensionFromFilename(kwm, s)
+	if filename != "[HorribleSubs] Boku no Hero Academia - 01 [1080p]" {
+		t.Errorf("expected \"[HorribleSubs] Boku no Hero Academia - 01 [1080p]\", got \"%s\"", filename)
+	}
+	if extension != "mkv" {
+		t.Errorf("expected \"mkv\", got \"%s\"", extension)
+	}
+}
+
+func BenchmarkAnitogoParse(b *testing.B) {
 	testDataPath := os.Getenv("TEST_DATA_PATH")
 	if testDataPath == "" {
 		b.Fatal("Missing TEST_DATA_PATH environment variable for json test data file")
@@ -182,10 +217,7 @@ func BenchmarkParse(b *testing.B) {
 	json.Unmarshal(byteValue, &e)
 	for n := 0; n < b.N; n++ {
 		for _, v := range e {
-			_, err := Parse(v.FileName, DefaultOptions)
-			if err != nil {
-				b.Error(err)
-			}
+			Parse(v.FileName, DefaultOptions)
 		}
 	}
 }

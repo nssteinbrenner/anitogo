@@ -15,7 +15,7 @@ type Elements struct {
 	AnimeTitle string `json:"anime_title,omitempty"`
 
 	// Type specified in the anime file, e.g ED, OP, Movie, etc.
-	AnimeType string `json:"anime_type,omitempty"`
+	AnimeType []string `json:"anime_type,omitempty"`
 
 	// Year the anime was released.
 	AnimeYear string `json:"anime_year,omitempty"`
@@ -142,8 +142,6 @@ func (e *Elements) getSingleElementField(cat elementCategory) (bool, *string) {
 	switch cat {
 	case elementCategoryAnimeTitle:
 		return true, &e.AnimeTitle
-	case elementCategoryAnimeType:
-		return true, &e.AnimeType
 	case elementCategoryAnimeYear:
 		return true, &e.AnimeYear
 	case elementCategoryEpisodeTitle:
@@ -169,6 +167,8 @@ func (e *Elements) getMultiElementField(cat elementCategory) (bool, *[]string) {
 		return true, &e.AnimeSeason
 	case elementCategoryAnimeSeasonPrefix:
 		return true, &e.AnimeSeasonPrefix
+	case elementCategoryAnimeType:
+		return true, &e.AnimeType
 	case elementCategoryAudioTerm:
 		return true, &e.AudioTerm
 	case elementCategoryDeviceCompatibility:
@@ -254,11 +254,8 @@ func (e *Elements) contains(cat elementCategory) bool {
 	if found {
 		return *targetSingle != ""
 	}
-	found, targetMulti := e.getMultiElementField(cat)
-	if found {
-		return *targetMulti != nil
-	}
-	return false
+	_, targetMulti := e.getMultiElementField(cat)
+	return *targetMulti != nil
 }
 
 func (e *Elements) get(cat elementCategory) []string {
@@ -266,11 +263,8 @@ func (e *Elements) get(cat elementCategory) []string {
 	if found {
 		return []string{*targetSingle}
 	}
-	found, targetMulti := e.getMultiElementField(cat)
-	if found {
-		return *targetMulti
-	}
-	return []string{}
+	_, targetMulti := e.getMultiElementField(cat)
+	return *targetMulti
 }
 
 func (e elementCategory) isSearchable() bool {
