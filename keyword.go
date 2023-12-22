@@ -73,20 +73,24 @@ func newKeywordManager() *keywordManager {
 		"ED", "ENDING", "NCED", "NCOP", "OP", "OPENING", "PREVIEW", "PV"})
 	kwm.add(elementCategoryAudioTerm, keywordOptionsDefault, []string{
 		// Audio channels
-		"2.0CH", "2CH", "5.1", "5.1CH", "DTS", "DTS-ES", "DTS5.1", "TRUEHD5.1",
+		"2.0CH", "2CH", "5.1", "5.1CH", "7.1", "7.1CH", "DTS", "DTS-ES", "DTS5.1",
+		"DOLBY TRUEHD", "TRUEHD", "TRUEHD5.1",
 		// Audio codec
 		"AAC", "AACX2", "AACX3", "AACX4", "AC3", "EAC3", "E-AC-3", "FLAC",
 		"FLACX2", "FLACX3", "FLACX4", "LOSSLESS", "MP3", "OGG", "VORBIS",
-		"DD2", "DD2.0",
+		"DD2", "DD2.0", "ATMOS", "DOLBY ATMOS",
 		// Audio language
 		"DUALAUDIO", "DUAL AUDIO"})
+	kwm.add(elementCategoryAudioTerm, keywordOptionsUnidentifiable, []string{
+		"OPUS", // e.g "Opus.COLORs"
+	})
 	kwm.add(elementCategoryDeviceCompatibility, keywordOptionsDefault, []string{
 		"IPAD3", "IPHONE5", "IPOD", "PS3", "XBOX", "XBOX360"})
 	kwm.add(elementCategoryDeviceCompatibility, keywordOptionsUnidentifiable, []string{
 		"ANDROID"})
 	kwm.add(elementCategoryEpisodePrefix, keywordOptionsDefault, []string{
 		"EP", "EP.", "EPS", "EPS.", "EPISODE", "EPISODE.", "EPISODES",
-		"CAPITULO", "EPISODIO", "FOLGE"})
+		"CAPITULO", "EPISODIO", "EPISóDIO", "FOLGE"})
 	kwm.add(elementCategoryEpisodePrefix, keywordOptionsInvalid, []string{
 		"E", "\x7B2C"}) // Single letter episode keywords are not valid tokens
 	kwm.add(elementCategoryFileExtension, keywordOptionsDefault, []string{
@@ -117,21 +121,24 @@ func newKeywordManager() *keywordManager {
 		"WEBCAST", "WEBRIP"})
 	kwm.add(elementCategorySubtitles, keywordOptionsDefault, []string{
 		"ASS", "BIG5", "DUB", "DUBBED", "HARDSUB", "HARDSUBS", "RAW",
-		"SOFTSUB", "SOFTSUBS", "SUB", "SUBBED", "SUBTITLED"})
+		"SOFTSUB", "SOFTSUBS", "SUB", "SUBBED", "SUBTITLED",
+	    "MULTISUB", "MULTI SUB"})
 	kwm.add(elementCategoryVideoTerm, keywordOptionsDefault, []string{
 		// Frame rate
 		"23.976FPS", "24FPS", "29.97FPS", "30FPS", "60FPS", "120FPS",
 		// Video codec
 		"8BIT", "8-BIT", "10BIT", "10BITS", "10-BIT", "10-BITS",
 		"HI10", "HI10P", "HI444", "HI444P", "HI444PP",
+		"HDR", "DV", "DOLBY VISION",
 		"H264", "H265", "H.264", "H.265", "X264", "X265", "X.264",
 		"AVC", "HEVC", "HEVC2", "DIVX", "DIVX5", "DIVX6", "XVID",
+		"AV1",
 		// Video format
 		"AVI", "RMVB", "WMV", "WMV3", "WMV9",
 		// Video quality
 		"HQ", "LQ",
 		// Video resolution
-		"HD", "SD"})
+		"4K", "HD", "SD"})
 	kwm.add(elementCategoryVolumePrefix, keywordOptionsDefault, []string{
 		"VOL", "VOL.", "VOLUME"})
 
@@ -189,7 +196,7 @@ func (kwm *keywordManager) peek(word string, e *Elements) indexSets {
 	entries := map[elementCategory][]string{
 		elementCategoryAudioTerm:       {"Dual Audio", "DualAudio"},
 		elementCategoryVideoTerm:       {"H264", "H.264", "h264", "h.264"},
-		elementCategoryVideoResolution: {"480p", "720p", "1080p"},
+		elementCategoryVideoResolution: {"480p", "720p", "1080p", "1440p", "2160p"},
 		elementCategorySource:          {"Blu-Ray"},
 	}
 
