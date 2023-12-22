@@ -179,7 +179,7 @@ func (kwm *keywordManager) find(word string, cat elementCategory) (keyword, bool
 	return keyword{}, false
 }
 
-func (kwm *keywordManager) FindWithoutCategory(word string) (keyword, bool) {
+func (kwm *keywordManager) findWithoutCategory(word string) (keyword, bool) {
 	if word == "" {
 		return keyword{}, false
 	}
@@ -194,7 +194,7 @@ func (kwm *keywordManager) FindWithoutCategory(word string) (keyword, bool) {
 	return keyword{}, false
 }
 
-func (kwm *keywordManager) Peek(word string, e *Elements) (indexSets, error) {
+func (kwm *keywordManager) peek(word string, e *Elements) (indexSets, error) {
 	entries := map[elementCategory][]string{
 		elementCategoryAudioTerm:       []string{"Dual Audio", "DualAudio"},
 		elementCategoryVideoTerm:       []string{"H264", "H.264", "h264", "h.264"},
@@ -221,7 +221,7 @@ func (kwm *keywordManager) Peek(word string, e *Elements) (indexSets, error) {
 	return preIdentifiedTokens, nil
 }
 
-func (kwm *keywordManager) Normalize(text string) string {
+func (kwm *keywordManager) normalize(text string) string {
 	f := norm.Form(3)
 
 	return strings.ToUpper(string(f.Bytes([]byte(text))))

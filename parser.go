@@ -61,7 +61,7 @@ func (p *parser) searchForKeywords() {
 		}
 
 		cat := elementCategoryUnknown
-		kd, found := p.tokenizer.keywordManager.FindWithoutCategory(p.tokenizer.keywordManager.Normalize(w))
+		kd, found := p.tokenizer.keywordManager.findWithoutCategory(p.tokenizer.keywordManager.normalize(w))
 		if found {
 			cat = kd.Category
 			if !p.tokenizer.options.ParseReleaseGroup && cat == elementCategoryReleaseGroup {
@@ -386,7 +386,7 @@ func (p *parser) validateElements() {
 			if animeType == episodeTitle {
 				p.tokenizer.elements.erase(elementCategoryEpisodeTitle)
 			} else if strings.Contains(episodeTitle, animeType) {
-				normAnimeType := p.tokenizer.keywordManager.Normalize(animeType)
+				normAnimeType := p.tokenizer.keywordManager.normalize(animeType)
 				_, found := p.tokenizer.keywordManager.find(normAnimeType, elementCategoryAnimeType)
 				if found {
 					p.tokenizer.elements.remove(elementCategoryAnimeType, animeType)

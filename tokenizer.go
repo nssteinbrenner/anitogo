@@ -122,7 +122,7 @@ func (t *tokenizer) tokenizeByBrackets() error {
 }
 
 func (t *tokenizer) tokenizeByPreidentified(filename string, enclosed bool) error {
-	preIdentifiedtokens, err := t.keywordManager.Peek(filename, t.elements)
+	preIdentifiedtokens, err := t.keywordManager.peek(filename, t.elements)
 	if err != nil {
 		return err
 	}

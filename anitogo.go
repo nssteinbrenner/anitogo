@@ -84,7 +84,7 @@ func removeExtensionFromFilename(km *keywordManager, filename string) (string, s
 	if !isAlphaNumeric(extension) {
 		return "", ""
 	}
-	kd, found := km.find(km.Normalize(extension), elementCategoryFileExtension)
+	kd, found := km.find(km.normalize(extension), elementCategoryFileExtension)
 	if !found {
 		return "", ""
 	}
